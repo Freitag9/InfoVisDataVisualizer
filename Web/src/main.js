@@ -1,4 +1,5 @@
 import * as BABYLON from '@babylonjs/core';
+import '@babylonjs/loaders/glTF'; // needed for VR controller models
 import { loadDataset, extractGenres } from './data/DataLoader.js';
 import { filterState } from './data/FilterState.js';
 import { ScatterPlot } from './visualization/ScatterPlot.js';

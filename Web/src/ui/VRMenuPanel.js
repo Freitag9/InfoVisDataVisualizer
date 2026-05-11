@@ -1,5 +1,5 @@
 import * as BABYLON from '@babylonjs/core';
-import { AdvancedDynamicTexture, StackPanel, Button, TextBlock, Slider, Rectangle } from '@babylonjs/gui';
+import { AdvancedDynamicTexture, StackPanel, Button, TextBlock, Slider, Control } from '@babylonjs/gui';
 import { filterState } from '../data/FilterState.js';
 import { AXIS_OPTIONS } from '../utils/DataUtils.js';
 
@@ -62,7 +62,7 @@ export class VRMenuPanel {
     t.fontSize   = 28;
     t.fontWeight = 'bold';
     t.height     = '44px';
-    t.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+    t.textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
     root.addControl(t);
   }
 
@@ -73,7 +73,7 @@ export class VRMenuPanel {
     t.fontSize = 16;
     t.height   = '28px';
     t.paddingTopInPixels = 12;
-    t.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+    t.textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
     root.addControl(t);
   }
 
@@ -128,7 +128,7 @@ export class VRMenuPanel {
     const lbl = new TextBlock();
     lbl.text = `${label}: ${Math.round(initial)}`;
     lbl.color = '#aaa'; lbl.fontSize = 16; lbl.height = '24px';
-    lbl.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+    lbl.textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
 
     const slider = new Slider();
     slider.minimum = min; slider.maximum = max; slider.value = initial;
