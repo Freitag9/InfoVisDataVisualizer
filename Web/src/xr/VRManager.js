@@ -167,15 +167,21 @@ export class VRManager {
 
   // ── Sphere picking ──────────────────────────────────────────────────────
   _pickSphere(ctrl) {
-    const ray  = ctrl.getWorldPointerRayToRef(
-      new BABYLON.Ray(BABYLON.Vector3.Zero(), BABYLON.Axis.Z),
-    );
-    const pick = this.scene.pickWithRay(
-      ray, m => m.isPickable && !!m.metadata?.track,
-    );
+    const pointer = ctrl.pointer;
+    if (!pointer) { console.warn('[VR] no pointer node'); return; }
+
+    const origin    = pointer.getAbsolutePosition().clone();
+    const direction = BABYLON.Vector3.TransformNormal(
+      new BABYLON.Vector3(0, 0, -1), // local forward in WebXR pointer space
+      pointer.getWorldMatrix(),
+    ).normalize();
+    const ray  = new BABYLON.Ray(origin, direction, 100);
+    const pick = this.scene.pickWithRay(ray, m => m.isPickable && !!m.metadata?.track);
     if (pick?.hit) {
       console.log('[VR] picked:', pick.pickedMesh?.metadata?.track?.track_name);
       this.scatterPlot.onVRPick(pick.pickedMesh);
+    } else {
+      console.log('[VR] no hit');
     }
   }
 
