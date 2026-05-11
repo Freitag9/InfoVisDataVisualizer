@@ -33,14 +33,15 @@ export class ScatterPlot {
     this.rebuild();
   }
 
-  /** Returns up to `limit` tracks whose name matches the query (case-insensitive). */
+  /** Returns up to `limit` rendered tracks whose name starts with the query. */
   findTracks(query, limit = 8) {
     if (!query) return [];
     const q = query.toLowerCase();
     const results = [];
-    for (const t of this.allTracks) {
-      if (t.track_name.toLowerCase().includes(q)) {
-        results.push(t);
+    for (const mesh of this.spheres) {
+      const name = mesh.metadata?.track?.track_name?.toLowerCase() ?? '';
+      if (name.startsWith(q)) {
+        results.push(mesh.metadata.track);
         if (results.length >= limit) break;
       }
     }
