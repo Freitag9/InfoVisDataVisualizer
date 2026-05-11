@@ -23,10 +23,9 @@ export class VRMenuPanel {
     this._plane = BABYLON.MeshBuilder.CreatePlane('vrMenu', {
       width: PANEL_W, height: PANEL_H,
     }, this.scene);
-    this._plane.isVisible = false;
-    // Offset so it floats above the controller
-    this._plane.position.set(0, 0.12, 0);
-    this._plane.rotation.x = -Math.PI / 6; // tilt toward user
+    this._plane.isVisible  = false;
+    this._plane.isPickable = false;
+    this._plane.billboardMode = BABYLON.Mesh.BILLBOARDMODE_ALL;
 
     this._texture = AdvancedDynamicTexture.CreateForMesh(this._plane, 512, 720);
     this._texture.background = 'rgba(10,10,20,0.92)';
@@ -144,8 +143,12 @@ export class VRMenuPanel {
     root.addControl(slider);
   }
 
-  attachTo(node) {
-    this._plane.setParent(node);
+  setWorldPosition(v) {
+    this._plane.position.copyFrom(v);
+  }
+
+  lookAtCamera(camPos) {
+    // Billboard mode handles this automatically — no-op kept for compatibility
   }
 
   setVisible(v) {

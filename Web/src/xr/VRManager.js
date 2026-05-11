@@ -66,7 +66,17 @@ export class VRManager {
   _setupLeft(ctrl, mc, xr) {
     this._leftReady = true;
     const grip = ctrl.grip ?? ctrl.pointer;
-    this._wristMenu.attachTo(grip);
+
+    // Update wrist menu position every frame in world space (avoid setParent scale issues)
+    const menuObs = this.scene.onBeforeRenderObservable.add(() => {
+      if (!this._menuOpen) return;
+      const gripPos = grip.getAbsolutePosition();
+      const cam     = xr.baseExperience?.camera;
+      const menuPos = new BABYLON.Vector3(gripPos.x, gripPos.y + 0.22, gripPos.z);
+      this._wristMenu.setWorldPosition(menuPos);
+      if (cam) this._wristMenu.lookAtCamera(cam.globalPosition);
+    });
+    this._observers.push(menuObs);
 
     // Y-button (Oculus Touch left) or b-button → toggle wrist menu
     for (const id of ['y-button', 'b-button', 'xr-standard-thumbstick-button']) {
@@ -172,7 +182,7 @@ export class VRManager {
 
     const origin    = pointer.getAbsolutePosition().clone();
     const direction = BABYLON.Vector3.TransformNormal(
-      new BABYLON.Vector3(0, 0, -1), // local forward in WebXR pointer space
+      new BABYLON.Vector3(0, 0, 1), // WebXR aim space: +Z is forward
       pointer.getWorldMatrix(),
     ).normalize();
     const ray  = new BABYLON.Ray(origin, direction, 100);
