@@ -26,7 +26,7 @@ point.intensity = 0.5;
 
 // ── Core Objects ────────────────────────────────────────────────────────────
 const scatterPlot = new ScatterPlot(scene);
-const menuPanel   = new MenuPanel();
+const menuPanel   = new MenuPanel(scatterPlot);
 
 // Let ScatterPlot notify the desktop UI when a track is selected
 scene.metadata = {
