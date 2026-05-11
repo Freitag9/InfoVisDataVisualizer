@@ -14,6 +14,7 @@
       touch-action: none;
     }
 
+    /* ── Loading ───────────────────────────────────────────── */
     #loading-screen {
       position: fixed; inset: 0;
       background: #0a0a0f;
@@ -21,88 +22,170 @@
       align-items: center; justify-content: center;
       color: #fff; z-index: 999;
     }
-    #loading-screen h1 { font-size: 1.6rem; margin-bottom: 1rem; letter-spacing: 0.05em; }
-    #loading-bar-wrap { width: 300px; height: 6px; background: #222; border-radius: 3px; overflow: hidden; }
+    #loading-screen h1 { font-size: 1.4rem; margin-bottom: 1rem; letter-spacing: 0.05em; }
+    #loading-bar-wrap { width: min(300px, 80vw); height: 6px; background: #222; border-radius: 3px; overflow: hidden; }
     #loading-bar { height: 100%; width: 0%; background: #1db954; transition: width 0.2s; }
-    #loading-text { margin-top: 0.75rem; font-size: 0.85rem; color: #888; }
+    #loading-text { margin-top: 0.75rem; font-size: 0.82rem; color: #888; text-align: center; padding: 0 1rem; }
 
+    /* ── XR Buttons ────────────────────────────────────────── */
     #xr-buttons {
-      position: fixed; bottom: 1.5rem; right: 1.5rem;
-      display: flex; gap: 0.75rem; z-index: 100;
+      position: fixed; bottom: 1rem; right: 1rem;
+      display: flex; gap: 0.5rem; z-index: 100;
     }
     .xr-btn {
-      padding: 0.6rem 1.2rem;
+      padding: 0.55rem 1rem;
       background: rgba(255,255,255,0.1);
       border: 1px solid rgba(255,255,255,0.25);
       color: #fff; border-radius: 8px;
-      cursor: pointer; font-size: 0.85rem;
+      cursor: pointer; font-size: 0.8rem;
       backdrop-filter: blur(8px);
       transition: background 0.15s;
+      -webkit-tap-highlight-color: transparent;
     }
-    .xr-btn:hover { background: rgba(255,255,255,0.2); }
+    .xr-btn:hover  { background: rgba(255,255,255,0.2); }
     .xr-btn:disabled { opacity: 0.35; cursor: not-allowed; }
 
-    /* Desktop popup menu */
-    #menu-panel {
-      position: fixed; top: 1rem; left: 1rem;
-      background: rgba(10,10,20,0.9);
-      border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 12px;
-      padding: 1rem;
-      color: #fff;
-      min-width: 260px;
-      backdrop-filter: blur(12px);
-      z-index: 100;
-      font-size: 0.82rem;
-    }
-    #menu-panel h2 { font-size: 1rem; margin-bottom: 0.75rem; color: #1db954; }
-    #menu-panel label { display: block; margin: 0.5rem 0 0.15rem; color: #aaa; }
-    #menu-panel select, #menu-panel input[type=range] { width: 100%; }
-    #menu-panel select {
-      background: #1a1a2e; color: #fff;
-      border: 1px solid #333; border-radius: 4px;
-      padding: 0.2rem 0.4rem;
-    }
+    /* ── Menu toggle button (always visible) ───────────────── */
     #menu-toggle {
       position: fixed; top: 1rem; left: 1rem;
-      background: rgba(10,10,20,0.85);
+      background: rgba(10,10,20,0.88);
       border: 1px solid rgba(255,255,255,0.2);
       color: #fff; border-radius: 8px;
-      padding: 0.5rem 1rem; cursor: pointer;
-      z-index: 101; font-size: 0.85rem;
+      padding: 0.5rem 0.85rem;
+      cursor: pointer; z-index: 201;
+      font-size: 0.85rem;
       backdrop-filter: blur(8px);
-      display: none;
+      display: flex; align-items: center; gap: 0.4rem;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
     }
-    .slider-row { display: flex; align-items: center; gap: 0.5rem; }
-    .slider-row span { min-width: 2.5rem; text-align: right; color: #1db954; font-size: 0.78rem; }
-    .section-divider { margin: 0.75rem 0; border: none; border-top: 1px solid #222; }
-    #menu-panel h3 { font-size: 0.8rem; color: #666; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.4rem; }
+    #menu-toggle .arrow { transition: transform 0.2s; display: inline-block; }
+    #menu-toggle.open .arrow { transform: rotate(180deg); }
 
-    /* Info tooltip */
-    #info-panel {
-      position: fixed; bottom: 1.5rem; left: 1.5rem;
-      background: rgba(10,10,20,0.92);
-      border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 10px;
-      padding: 0.9rem 1.1rem;
-      color: #fff; font-size: 0.82rem;
-      max-width: 280px;
-      backdrop-filter: blur(12px);
-      z-index: 100;
-      display: none;
+    /* ── Side panel ────────────────────────────────────────── */
+    #menu-panel {
+      position: fixed;
+      top: 0; left: 0;
+      height: 100dvh;
+      width: min(280px, 88vw);
+      background: rgba(8,8,18,0.97);
+      border-right: 1px solid rgba(255,255,255,0.12);
+      padding: 0;
+      color: #fff;
+      z-index: 200;
+      font-size: 0.82rem;
+      display: flex; flex-direction: column;
+      transform: translateX(-100%);
+      transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
+      backdrop-filter: blur(16px);
     }
-    #info-panel .track-name { font-size: 1rem; font-weight: 600; margin-bottom: 0.2rem; }
-    #info-panel .artist { color: #aaa; margin-bottom: 0.6rem; }
-    #info-panel .genre-chip {
+    #menu-panel.open { transform: translateX(0); }
+
+    /* Panel header */
+    #menu-panel-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 1rem 0.75rem;
+      border-bottom: 1px solid #1a1a2e;
+      flex-shrink: 0;
+    }
+    #menu-panel-header h2 { font-size: 0.95rem; color: #1db954; }
+    #menu-close {
+      background: none; border: none; color: #666;
+      font-size: 1.1rem; cursor: pointer; padding: 0.2rem;
+      line-height: 1;
+    }
+    #menu-close:hover { color: #fff; }
+
+    /* Scrollable content */
+    #menu-scroll {
+      overflow-y: auto;
+      flex: 1;
+      padding: 0.75rem 1rem 1.5rem;
+      scrollbar-width: thin;
+      scrollbar-color: #333 transparent;
+    }
+
+    /* Section accordion */
+    .section-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.5rem 0;
+      cursor: pointer;
+      color: #888;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      border-top: 1px solid #1a1a2e;
+      margin-top: 0.5rem;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .section-head:first-child { border-top: none; margin-top: 0; }
+    .section-head .arr { transition: transform 0.2s; font-size: 0.6rem; }
+    .section-head.collapsed .arr { transform: rotate(-90deg); }
+    .section-body { overflow: hidden; transition: max-height 0.25s ease; }
+    .section-body.collapsed { max-height: 0 !important; }
+
+    /* Controls */
+    #menu-panel label {
+      display: block; margin: 0.45rem 0 0.12rem;
+      color: #999; font-size: 0.78rem;
+    }
+    #menu-panel select {
+      width: 100%;
+      background: #111122; color: #fff;
+      border: 1px solid #2a2a3e; border-radius: 5px;
+      padding: 0.3rem 0.5rem; font-size: 0.8rem;
+    }
+    .slider-row { display: flex; align-items: center; gap: 0.4rem; }
+    .slider-row input[type=range] { flex: 1; accent-color: #1db954; }
+    .slider-val { min-width: 2.8rem; text-align: right; color: #1db954; font-size: 0.76rem; font-variant-numeric: tabular-nums; }
+    .toggle-row { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.45rem; }
+    .toggle-row input { accent-color: #1db954; }
+
+    /* ── Info panel (bottom, collapsible) ──────────────────── */
+    #info-panel {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: rgba(8,8,18,0.96);
+      border-top: 1px solid rgba(255,255,255,0.12);
+      color: #fff; font-size: 0.8rem;
+      z-index: 150;
+      transform: translateY(100%);
+      transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
+      max-height: 45vh;
+      display: flex; flex-direction: column;
+    }
+    #info-panel.open { transform: translateY(0); }
+
+    #info-handle {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.6rem 1rem;
+      border-bottom: 1px solid #1a1a2e;
+      cursor: pointer; flex-shrink: 0;
+    }
+    #info-title-row { display: flex; flex-direction: column; }
+    .track-name { font-size: 0.92rem; font-weight: 600; }
+    .artist     { font-size: 0.75rem; color: #aaa; }
+    #info-close { background: none; border: none; color: #666; font-size: 1rem; cursor: pointer; padding: 0.2rem; }
+    #info-close:hover { color: #fff; }
+
+    #info-body { overflow-y: auto; padding: 0.75rem 1rem 1rem; flex: 1; }
+    .genre-chip {
       display: inline-block;
       padding: 0.15rem 0.6rem;
       border-radius: 999px;
-      font-size: 0.75rem;
-      margin-bottom: 0.6rem;
+      font-size: 0.72rem;
+      margin-bottom: 0.5rem;
     }
-    #info-panel .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 0.25rem 0.75rem; }
-    #info-panel .stat-label { color: #666; }
-    #info-panel .stat-val { color: #1db954; text-align: right; }
+    .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 0.2rem 1rem; }
+    .stat-label { color: #666; }
+    .stat-val   { color: #1db954; text-align: right; font-variant-numeric: tabular-nums; }
+
+    /* ── Overlay (closes menu on tap outside) ──────────────── */
+    #menu-overlay {
+      display: none; position: fixed; inset: 0; z-index: 199;
+      background: rgba(0,0,0,0.4);
+    }
+    #menu-overlay.open { display: block; }
   </style>
 </head>
 <body>
@@ -114,76 +197,156 @@
     <div id="loading-text">Loading dataset…</div>
   </div>
 
+  <!-- Overlay closes panel on outside tap -->
+  <div id="menu-overlay"></div>
+
+  <!-- Toggle button -->
+  <button id="menu-toggle">☰ Filters <span class="arrow">▼</span></button>
+
+  <!-- Slide-in side panel -->
+  <div id="menu-panel">
+    <div id="menu-panel-header">
+      <h2>🎵 Spotify Visualizer</h2>
+      <button id="menu-close">✕</button>
+    </div>
+    <div id="menu-scroll">
+
+      <!-- AXES section -->
+      <div class="section-head" data-section="axes">Axes <span class="arr">▾</span></div>
+      <div class="section-body" id="sec-axes">
+        <label>X Axis</label>
+        <select id="axis-x"></select>
+        <label>Y Axis</label>
+        <select id="axis-y"></select>
+        <label>Z Axis</label>
+        <select id="axis-z"></select>
+      </div>
+
+      <!-- FILTERS section -->
+      <div class="section-head" data-section="filters">Filters <span class="arr">▾</span></div>
+      <div class="section-body" id="sec-filters">
+        <label>Genre</label>
+        <select id="filter-genre"><option value="">All Genres</option></select>
+
+        <label>Popularity</label>
+        <div class="slider-row">
+          <input type="range" id="pop-min" min="0" max="100" value="0"/>
+          <span class="slider-val" id="pop-min-v">0</span>
+        </div>
+        <div class="slider-row">
+          <input type="range" id="pop-max" min="0" max="100" value="100"/>
+          <span class="slider-val" id="pop-max-v">100</span>
+        </div>
+
+        <label>Energy</label>
+        <div class="slider-row">
+          <input type="range" id="energy-min" min="0" max="100" value="0"/>
+          <span class="slider-val" id="energy-min-v">0.00</span>
+        </div>
+        <div class="slider-row">
+          <input type="range" id="energy-max" min="0" max="100" value="100"/>
+          <span class="slider-val" id="energy-max-v">1.00</span>
+        </div>
+
+        <label>Danceability</label>
+        <div class="slider-row">
+          <input type="range" id="dance-min" min="0" max="100" value="0"/>
+          <span class="slider-val" id="dance-min-v">0.00</span>
+        </div>
+        <div class="slider-row">
+          <input type="range" id="dance-max" min="0" max="100" value="100"/>
+          <span class="slider-val" id="dance-max-v">1.00</span>
+        </div>
+
+        <label>Valence</label>
+        <div class="slider-row">
+          <input type="range" id="valence-min" min="0" max="100" value="0"/>
+          <span class="slider-val" id="valence-min-v">0.00</span>
+        </div>
+        <div class="slider-row">
+          <input type="range" id="valence-max" min="0" max="100" value="100"/>
+          <span class="slider-val" id="valence-max-v">1.00</span>
+        </div>
+
+        <label>Tempo (BPM)</label>
+        <div class="slider-row">
+          <input type="range" id="tempo-min" min="40" max="220" value="40"/>
+          <span class="slider-val" id="tempo-min-v">40</span>
+        </div>
+        <div class="slider-row">
+          <input type="range" id="tempo-max" min="40" max="220" value="220"/>
+          <span class="slider-val" id="tempo-max-v">220</span>
+        </div>
+
+        <div class="toggle-row">
+          <input type="checkbox" id="filter-explicit"/>
+          <label style="margin:0">Explicit only</label>
+        </div>
+      </div>
+
+      <!-- DISPLAY section -->
+      <div class="section-head" data-section="display">Display <span class="arr">▾</span></div>
+      <div class="section-body" id="sec-display">
+        <label>Track count: <span id="count-label">500</span></label>
+        <input type="range" id="track-count" min="50" max="2000" value="500" step="50" style="width:100%;accent-color:#1db954"/>
+      </div>
+
+    </div><!-- /menu-scroll -->
+  </div><!-- /menu-panel -->
+
+  <!-- XR buttons -->
   <div id="xr-buttons">
     <button class="xr-btn" id="btn-ar" disabled>Enter AR</button>
     <button class="xr-btn" id="btn-vr" disabled>Enter VR</button>
   </div>
 
-  <button id="menu-toggle">☰ Filters</button>
-
-  <div id="menu-panel">
-    <h2>Spotify Visualizer</h2>
-
-    <h3>Axes</h3>
-    <label>X Axis</label>
-    <select id="axis-x"></select>
-    <label>Y Axis</label>
-    <select id="axis-y"></select>
-    <label>Z Axis</label>
-    <select id="axis-z"></select>
-
-    <hr class="section-divider"/>
-    <h3>Filters</h3>
-
-    <label>Genre</label>
-    <select id="filter-genre"><option value="">All Genres</option></select>
-
-    <label>Popularity <span id="pop-label">0–100</span></label>
-    <div class="slider-row">
-      <input type="range" id="pop-min" min="0" max="100" value="0"/>
-      <input type="range" id="pop-max" min="0" max="100" value="100"/>
-    </div>
-
-    <label>Energy <span id="energy-label">0–1</span></label>
-    <div class="slider-row">
-      <input type="range" id="energy-min" min="0" max="100" value="0"/>
-      <input type="range" id="energy-max" min="0" max="100" value="100"/>
-    </div>
-
-    <label>Danceability <span id="dance-label">0–1</span></label>
-    <div class="slider-row">
-      <input type="range" id="dance-min" min="0" max="100" value="0"/>
-      <input type="range" id="dance-max" min="0" max="100" value="100"/>
-    </div>
-
-    <label>Valence <span id="valence-label">0–1</span></label>
-    <div class="slider-row">
-      <input type="range" id="valence-min" min="0" max="100" value="0"/>
-      <input type="range" id="valence-max" min="0" max="100" value="100"/>
-    </div>
-
-    <label>Tempo (BPM) <span id="tempo-label">40–220</span></label>
-    <div class="slider-row">
-      <input type="range" id="tempo-min" min="40" max="220" value="40"/>
-      <input type="range" id="tempo-max" min="40" max="220" value="220"/>
-    </div>
-
-    <label style="display:flex;align-items:center;gap:0.5rem;margin-top:0.5rem;">
-      <input type="checkbox" id="filter-explicit"/> Explicit only
-    </label>
-
-    <hr class="section-divider"/>
-    <h3>Display</h3>
-    <label>Track count: <span id="count-label">500</span></label>
-    <input type="range" id="track-count" min="50" max="2000" value="500" step="50"/>
-  </div>
-
+  <!-- Track info panel (slides up from bottom) -->
   <div id="info-panel">
-    <div class="track-name" id="info-name">—</div>
-    <div class="artist" id="info-artist">—</div>
-    <div class="genre-chip" id="info-genre">—</div>
-    <div class="stats" id="info-stats"></div>
+    <div id="info-handle">
+      <div id="info-title-row">
+        <span class="track-name" id="info-name">—</span>
+        <span class="artist"     id="info-artist">—</span>
+      </div>
+      <button id="info-close">✕</button>
+    </div>
+    <div id="info-body">
+      <div class="genre-chip" id="info-genre">—</div>
+      <div class="stats" id="info-stats"></div>
+    </div>
   </div>
+
+  <script>
+    // ── Panel open/close ────────────────────────────────────
+    const panel   = document.getElementById('menu-panel');
+    const toggle  = document.getElementById('menu-toggle');
+    const closeBtn= document.getElementById('menu-close');
+    const overlay = document.getElementById('menu-overlay');
+
+    function openMenu()  { panel.classList.add('open'); toggle.classList.add('open'); overlay.classList.add('open'); }
+    function closeMenu() { panel.classList.remove('open'); toggle.classList.remove('open'); overlay.classList.remove('open'); }
+
+    toggle.addEventListener('click', () => panel.classList.contains('open') ? closeMenu() : openMenu());
+    closeBtn.addEventListener('click', closeMenu);
+    overlay.addEventListener('click', closeMenu);
+
+    // ── Section accordions ──────────────────────────────────
+    document.querySelectorAll('.section-head').forEach(head => {
+      const bodyId = 'sec-' + head.dataset.section;
+      const body   = document.getElementById(bodyId);
+      // Set initial max-height
+      body.style.maxHeight = body.scrollHeight + 'px';
+
+      head.addEventListener('click', () => {
+        const collapsed = head.classList.toggle('collapsed');
+        body.classList.toggle('collapsed', collapsed);
+        if (!collapsed) body.style.maxHeight = body.scrollHeight + 'px';
+      });
+    });
+
+    // ── Info panel close ────────────────────────────────────
+    document.getElementById('info-close').addEventListener('click', () =>
+      document.getElementById('info-panel').classList.remove('open'));
+  </script>
 
   <script type="module" src="/src/main.js"></script>
 </body>
