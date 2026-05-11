@@ -67,14 +67,22 @@ export class VRManager {
     this._leftReady = true;
     const grip = ctrl.grip ?? ctrl.pointer;
 
-    // Update wrist menu position every frame in world space (avoid setParent scale issues)
+    // Small Y-button indicator floating above left controller
+    const indicator = this._createHandIndicator();
+
+    // Update wrist menu + indicator position every frame in world space
     const menuObs = this.scene.onBeforeRenderObservable.add(() => {
-      if (!this._menuOpen) return;
       const gripPos = grip.getAbsolutePosition();
-      const cam     = xr.baseExperience?.camera;
-      const menuPos = new BABYLON.Vector3(gripPos.x, gripPos.y + 0.22, gripPos.z);
-      this._wristMenu.setWorldPosition(menuPos);
-      if (cam) this._wristMenu.lookAtCamera(cam.globalPosition);
+      const above   = new BABYLON.Vector3(gripPos.x, gripPos.y + 0.18, gripPos.z);
+
+      // Indicator: visible when menu closed
+      indicator.position.copyFrom(new BABYLON.Vector3(gripPos.x, gripPos.y + 0.11, gripPos.z));
+      indicator.isVisible = !this._menuOpen;
+
+      // Menu: visible when open
+      if (this._menuOpen) {
+        this._wristMenu.setWorldPosition(above);
+      }
     });
     this._observers.push(menuObs);
 
@@ -175,6 +183,30 @@ export class VRManager {
     this._grabbing = null;
   }
 
+  // ── Hand indicator ──────────────────────────────────────────────────────
+  _createHandIndicator() {
+    const plane = BABYLON.MeshBuilder.CreatePlane('handIndicator', {
+      width: 0.10, height: 0.045,
+    }, this.scene);
+    plane.billboardMode = BABYLON.Mesh.BILLBOARDMODE_ALL;
+    plane.isPickable    = false;
+    plane.isVisible     = false;
+
+    const dt = new BABYLON.DynamicTexture('indTex', { width: 320, height: 128 }, this.scene);
+    dt.drawText('Y  ☰  Menu', null, 88, 'bold 54px sans-serif', '#1db954', 'rgba(0,0,0,0.75)', true);
+
+    const mat = new BABYLON.StandardMaterial('indMat', this.scene);
+    mat.diffuseTexture  = dt;
+    mat.emissiveTexture = dt;
+    mat.opacityTexture  = dt;
+    mat.backFaceCulling = false;
+    mat.disableLighting = true;
+    plane.material = mat;
+
+    this._indicator = plane; // keep ref for dispose
+    return plane;
+  }
+
   // ── Sphere picking ──────────────────────────────────────────────────────
   _pickSphere(ctrl) {
     const pointer = ctrl.pointer;
@@ -186,7 +218,10 @@ export class VRManager {
       pointer.getWorldMatrix(),
     ).normalize();
     const ray  = new BABYLON.Ray(origin, direction, 100);
-    const pick = this.scene.pickWithRay(ray, m => m.isPickable && !!m.metadata?.track);
+    const menuPlane = this._wristMenu?._plane;
+    const pick = this.scene.pickWithRay(
+      ray, m => m.isPickable && !!m.metadata?.track && m !== menuPlane,
+    );
     if (pick?.hit) {
       console.log('[VR] picked:', pick.pickedMesh?.metadata?.track?.track_name);
       this.scatterPlot.onVRPick(pick.pickedMesh);
@@ -260,6 +295,8 @@ export class VRManager {
     this._observers = [];
     this._wristMenu?.dispose();
     this._infoPanel?.dispose();
+    this._indicator?.material?.dispose();
+    this._indicator?.dispose();
     await this._xr?.baseExperience?.exitXRAsync();
   }
 }

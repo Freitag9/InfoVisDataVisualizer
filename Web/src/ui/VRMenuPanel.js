@@ -24,7 +24,7 @@ export class VRMenuPanel {
       width: PANEL_W, height: PANEL_H,
     }, this.scene);
     this._plane.isVisible  = false;
-    this._plane.isPickable = false;
+    this._plane.isPickable = true; // allows right-hand ray to click GUI buttons
     this._plane.billboardMode = BABYLON.Mesh.BILLBOARDMODE_ALL;
 
     this._texture = AdvancedDynamicTexture.CreateForMesh(this._plane, 512, 720);
