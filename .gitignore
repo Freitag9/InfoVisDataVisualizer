@@ -1,0 +1,23 @@
+## Unity
+Unity/Library/
+Unity/Temp/
+Unity/Logs/
+Unity/obj/
+Unity/Builds/
+Unity/UserSettings/
+Unity/*.sln
+Unity/*.csproj
+Unity/.vsconfig
+
+## Web
+Web/node_modules/
+Web/dist/
+Web/.vite/
+
+## Dataset (large file – tracked via Git LFS or excluded)
+# Web/public/dataset.csv
+# Unity/Assets/StreamingAssets/dataset.csv
+
+## OS
+.DS_Store
+Thumbs.db

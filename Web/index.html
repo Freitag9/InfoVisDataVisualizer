@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>InfoVis – Spotify 3D Visualizer</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #0a0a0f; overflow: hidden; font-family: system-ui, sans-serif; }
+
+    #renderCanvas {
+      width: 100vw;
+      height: 100vh;
+      touch-action: none;
+    }
+
+    #loading-screen {
+      position: fixed; inset: 0;
+      background: #0a0a0f;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      color: #fff; z-index: 999;
+    }
+    #loading-screen h1 { font-size: 1.6rem; margin-bottom: 1rem; letter-spacing: 0.05em; }
+    #loading-bar-wrap { width: 300px; height: 6px; background: #222; border-radius: 3px; overflow: hidden; }
+    #loading-bar { height: 100%; width: 0%; background: #1db954; transition: width 0.2s; }
+    #loading-text { margin-top: 0.75rem; font-size: 0.85rem; color: #888; }
+
+    #xr-buttons {
+      position: fixed; bottom: 1.5rem; right: 1.5rem;
+      display: flex; gap: 0.75rem; z-index: 100;
+    }
+    .xr-btn {
+      padding: 0.6rem 1.2rem;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.25);
+      color: #fff; border-radius: 8px;
+      cursor: pointer; font-size: 0.85rem;
+      backdrop-filter: blur(8px);
+      transition: background 0.15s;
+    }
+    .xr-btn:hover { background: rgba(255,255,255,0.2); }
+    .xr-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    /* Desktop popup menu */
+    #menu-panel {
+      position: fixed; top: 1rem; left: 1rem;
+      background: rgba(10,10,20,0.9);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 12px;
+      padding: 1rem;
+      color: #fff;
+      min-width: 260px;
+      backdrop-filter: blur(12px);
+      z-index: 100;
+      font-size: 0.82rem;
+    }
+    #menu-panel h2 { font-size: 1rem; margin-bottom: 0.75rem; color: #1db954; }
+    #menu-panel label { display: block; margin: 0.5rem 0 0.15rem; color: #aaa; }
+    #menu-panel select, #menu-panel input[type=range] { width: 100%; }
+    #menu-panel select {
+      background: #1a1a2e; color: #fff;
+      border: 1px solid #333; border-radius: 4px;
+      padding: 0.2rem 0.4rem;
+    }
+    #menu-toggle {
+      position: fixed; top: 1rem; left: 1rem;
+      background: rgba(10,10,20,0.85);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #fff; border-radius: 8px;
+      padding: 0.5rem 1rem; cursor: pointer;
+      z-index: 101; font-size: 0.85rem;
+      backdrop-filter: blur(8px);
+      display: none;
+    }
+    .slider-row { display: flex; align-items: center; gap: 0.5rem; }
+    .slider-row span { min-width: 2.5rem; text-align: right; color: #1db954; font-size: 0.78rem; }
+    .section-divider { margin: 0.75rem 0; border: none; border-top: 1px solid #222; }
+    #menu-panel h3 { font-size: 0.8rem; color: #666; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.4rem; }
+
+    /* Info tooltip */
+    #info-panel {
+      position: fixed; bottom: 1.5rem; left: 1.5rem;
+      background: rgba(10,10,20,0.92);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 10px;
+      padding: 0.9rem 1.1rem;
+      color: #fff; font-size: 0.82rem;
+      max-width: 280px;
+      backdrop-filter: blur(12px);
+      z-index: 100;
+      display: none;
+    }
+    #info-panel .track-name { font-size: 1rem; font-weight: 600; margin-bottom: 0.2rem; }
+    #info-panel .artist { color: #aaa; margin-bottom: 0.6rem; }
+    #info-panel .genre-chip {
+      display: inline-block;
+      padding: 0.15rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      margin-bottom: 0.6rem;
+    }
+    #info-panel .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 0.25rem 0.75rem; }
+    #info-panel .stat-label { color: #666; }
+    #info-panel .stat-val { color: #1db954; text-align: right; }
+  </style>
+</head>
+<body>
+  <canvas id="renderCanvas"></canvas>
+
+  <div id="loading-screen">
+    <h1>Spotify 3D Visualizer</h1>
+    <div id="loading-bar-wrap"><div id="loading-bar"></div></div>
+    <div id="loading-text">Loading dataset…</div>
+  </div>
+
+  <div id="xr-buttons">
+    <button class="xr-btn" id="btn-ar" disabled>Enter AR</button>
+    <button class="xr-btn" id="btn-vr" disabled>Enter VR</button>
+  </div>
+
+  <button id="menu-toggle">☰ Filters</button>
+
+  <div id="menu-panel">
+    <h2>Spotify Visualizer</h2>
+
+    <h3>Axes</h3>
+    <label>X Axis</label>
+    <select id="axis-x"></select>
+    <label>Y Axis</label>
+    <select id="axis-y"></select>
+    <label>Z Axis</label>
+    <select id="axis-z"></select>
+
+    <hr class="section-divider"/>
+    <h3>Filters</h3>
+
+    <label>Genre</label>
+    <select id="filter-genre"><option value="">All Genres</option></select>
+
+    <label>Popularity <span id="pop-label">0–100</span></label>
+    <div class="slider-row">
+      <input type="range" id="pop-min" min="0" max="100" value="0"/>
+      <input type="range" id="pop-max" min="0" max="100" value="100"/>
+    </div>
+
+    <label>Energy <span id="energy-label">0–1</span></label>
+    <div class="slider-row">
+      <input type="range" id="energy-min" min="0" max="100" value="0"/>
+      <input type="range" id="energy-max" min="0" max="100" value="100"/>
+    </div>
+
+    <label>Danceability <span id="dance-label">0–1</span></label>
+    <div class="slider-row">
+      <input type="range" id="dance-min" min="0" max="100" value="0"/>
+      <input type="range" id="dance-max" min="0" max="100" value="100"/>
+    </div>
+
+    <label>Valence <span id="valence-label">0–1</span></label>
+    <div class="slider-row">
+      <input type="range" id="valence-min" min="0" max="100" value="0"/>
+      <input type="range" id="valence-max" min="0" max="100" value="100"/>
+    </div>
+
+    <label>Tempo (BPM) <span id="tempo-label">40–220</span></label>
+    <div class="slider-row">
+      <input type="range" id="tempo-min" min="40" max="220" value="40"/>
+      <input type="range" id="tempo-max" min="40" max="220" value="220"/>
+    </div>
+
+    <label style="display:flex;align-items:center;gap:0.5rem;margin-top:0.5rem;">
+      <input type="checkbox" id="filter-explicit"/> Explicit only
+    </label>
+
+    <hr class="section-divider"/>
+    <h3>Display</h3>
+    <label>Track count: <span id="count-label">500</span></label>
+    <input type="range" id="track-count" min="50" max="2000" value="500" step="50"/>
+  </div>
+
+  <div id="info-panel">
+    <div class="track-name" id="info-name">—</div>
+    <div class="artist" id="info-artist">—</div>
+    <div class="genre-chip" id="info-genre">—</div>
+    <div class="stats" id="info-stats"></div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
