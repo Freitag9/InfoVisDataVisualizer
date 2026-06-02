@@ -142,6 +142,46 @@
     #menu-panel-header h2 { font-size: 0.95rem; color: #1db954; }
     #menu-close { background: none; border: none; color: #666; font-size: 1.1rem; cursor: pointer; padding: 0.2rem; }
     #menu-close:hover { color: #fff; }
+    #glossary-btn {
+      background: none; border: 1px solid #2a2a3e; color: #1db954;
+      font-size: 0.85rem; cursor: pointer; border-radius: 50%;
+      width: 1.5rem; height: 1.5rem; line-height: 1; padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    #glossary-btn:hover { background: #1db954; color: #04210f; }
+
+    /* Glossary overlay */
+    #glossary-overlay {
+      position: fixed; inset: 0; z-index: 400;
+      background: rgba(0,0,0,0.6);
+      display: none; align-items: center; justify-content: center;
+      padding: 1rem;
+    }
+    #glossary-overlay.open { display: flex; }
+    #glossary-card {
+      background: #0c0c18;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 14px;
+      width: min(520px, 100%);
+      max-height: 85dvh;
+      display: flex; flex-direction: column;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    }
+    #glossary-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 1.2rem; border-bottom: 1px solid #1a1a2e; flex-shrink: 0;
+    }
+    #glossary-head h2 { font-size: 1.05rem; color: #1db954; }
+    #glossary-close { background: none; border: none; color: #888; font-size: 1.2rem; cursor: pointer; }
+    #glossary-close:hover { color: #fff; }
+    #glossary-body { overflow-y: auto; padding: 0.5rem 1.2rem 1.2rem; }
+    .gloss-item { padding: 0.7rem 0; border-bottom: 1px solid #15152a; }
+    .gloss-item:last-child { border-bottom: none; }
+    .gloss-name { display: flex; align-items: baseline; gap: 0.5rem; margin-bottom: 0.2rem; }
+    .gloss-name b { color: #fff; font-size: 0.92rem; }
+    .gloss-range { color: #1db954; font-size: 0.74rem; font-variant-numeric: tabular-nums; }
+    .gloss-desc { color: #aaa; font-size: 0.82rem; line-height: 1.45; }
+    .gloss-section { color: #555; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; margin: 0.9rem 0 0.3rem; }
 
     #menu-scroll {
       overflow-y: auto; flex: 1;
@@ -317,7 +357,10 @@
   <div id="menu-panel">
     <div id="menu-panel-header">
       <h2>🎵 Spotify Visualizer</h2>
-      <button id="menu-close">✕</button>
+      <div style="display:flex;gap:0.3rem;align-items:center;">
+        <button id="glossary-btn" title="Was bedeuten die Werte?">ⓘ</button>
+        <button id="menu-close">✕</button>
+      </div>
     </div>
     <div id="menu-scroll">
 
@@ -379,6 +422,17 @@
   <div id="xr-buttons">
     <button class="xr-btn" id="btn-ar" disabled>Enter AR</button>
     <button class="xr-btn" id="btn-vr" disabled>Enter VR</button>
+  </div>
+
+  <!-- Glossary overlay -->
+  <div id="glossary-overlay">
+    <div id="glossary-card">
+      <div id="glossary-head">
+        <h2>Was bedeuten die Werte?</h2>
+        <button id="glossary-close">✕</button>
+      </div>
+      <div id="glossary-body"></div>
+    </div>
   </div>
 
   <!-- Info bottom sheet -->

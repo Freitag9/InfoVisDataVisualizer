@@ -3,6 +3,7 @@ import { AXIS_OPTIONS, denormalizeLabel } from '../utils/DataUtils.js';
 import { colorForGenre } from '../utils/ColorMapper.js';
 import { addRecent, getRecent } from '../utils/RecentlyViewed.js';
 import { DualRange } from './DualRange.js';
+import { FEATURE_INFO, ENCODING_INFO } from '../utils/FeatureInfo.js';
 
 export class MenuPanel {
   constructor(scatterPlot) {
@@ -12,6 +13,36 @@ export class MenuPanel {
     this._bindFilters();
     this._initSearch();
     this._renderRecent();
+    this._initGlossary();
+  }
+
+  // ── Glossary overlay (feature descriptions) ───────────────
+  _initGlossary() {
+    const overlay = document.getElementById('glossary-overlay');
+    const body    = document.getElementById('glossary-body');
+    if (!overlay || !body) return;
+
+    let html = '<div class="gloss-section">Achsen-Werte</div>';
+    for (const f of FEATURE_INFO) {
+      html += `<div class="gloss-item">
+        <div class="gloss-name"><b>${f.label}</b><span class="gloss-range">${f.range}</span></div>
+        <div class="gloss-desc">${f.desc}</div>
+      </div>`;
+    }
+    html += '<div class="gloss-section">Darstellung &amp; Filter</div>';
+    for (const e of ENCODING_INFO) {
+      html += `<div class="gloss-item">
+        <div class="gloss-name"><b>${e.label}</b></div>
+        <div class="gloss-desc">${e.desc}</div>
+      </div>`;
+    }
+    body.innerHTML = html;
+
+    const open  = () => overlay.classList.add('open');
+    const close = () => overlay.classList.remove('open');
+    document.getElementById('glossary-btn')?.addEventListener('click', open);
+    document.getElementById('glossary-close')?.addEventListener('click', close);
+    overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
   }
 
   // ── Axis selects + coupled dual-range filters ─────────────
