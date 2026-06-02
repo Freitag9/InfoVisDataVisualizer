@@ -83,8 +83,6 @@ export class MenuPanel {
       },
     });
 
-    // Mode segmented control
-    this._bindSegmented('seg-mode', val => filterState.set({ mode: val }));
     // Vocal segmented control
     this._bindSegmented('seg-vocal', val => filterState.set({ vocal: val }));
 

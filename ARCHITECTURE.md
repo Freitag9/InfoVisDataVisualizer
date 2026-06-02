@@ -57,7 +57,6 @@ Plot space: `[0, plotSize]` where `plotSize = 10` Babylon units.
 | X / Y / Z range | Dual slider per axis | normalized [0,1], **follows the active axis field** (resets on axis change) |
 | Genre | Dropdown | exact match |
 | Popularity | Dual slider | range [0,100] |
-| Mode | Segmented | all / major / minor |
 | Vocals | Segmented | all / instrumental / vocal (instrumentalness ≷ 0.5) |
 | Explicit | Toggle | boolean |
 | Track count | Slider | 50–2000 (stable sample, reshuffled only on change) |

@@ -26,7 +26,6 @@ class FilterState {
     this.minPopularity = 0;
     this.maxPopularity = 100;
     this.explicitOnly  = false;
-    this.mode          = 'all';   // 'all' | 'major' | 'minor'
     this.vocal         = 'all';   // 'all' | 'instrumental' | 'vocal'
 
     this.trackCount     = 500;
@@ -69,8 +68,6 @@ class FilterState {
     if (track.popularity < this.minPopularity) return false;
     if (track.popularity > this.maxPopularity) return false;
     if (this.explicitOnly && !track.explicit) return false;
-    if (this.mode === 'major' && track.mode !== 1) return false;
-    if (this.mode === 'minor' && track.mode !== 0) return false;
     if (this.vocal === 'instrumental' && track.instrumentalness < 0.5) return false;
     if (this.vocal === 'vocal' && track.instrumentalness >= 0.5) return false;
 

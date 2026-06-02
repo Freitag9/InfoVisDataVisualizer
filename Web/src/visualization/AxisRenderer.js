@@ -81,21 +81,36 @@ export class AxisRenderer {
   }
 
   _makeLabel(text, position, color, scaleMult = 1) {
-    // Dynamic texture label rendered on a plane
-    const plane = BABYLON.MeshBuilder.CreatePlane(`lbl_${text}_${Math.random()}`, {
-      width:  text.length * 0.12 * scaleMult,
-      height: 0.18 * scaleMult,
+    const fontPx  = 52;
+    const padding = 16;
+    const texH    = 80;
+
+    // Size texture to the text so nothing is clipped or squished
+    const tmp = new BABYLON.DynamicTexture('tmp', 64, this.scene, false);
+    const tctx = tmp.getContext();
+    tctx.font = `bold ${fontPx}px monospace`;
+    const textW = Math.ceil(tctx.measureText(text).width);
+    tmp.dispose();
+
+    const texW = textW + padding * 2;
+    const dt = new BABYLON.DynamicTexture(`dt_${text}_${Math.random()}`,
+      { width: texW, height: texH }, this.scene, false);
+    dt.hasAlpha = true;
+    dt.drawText(text, padding, texH * 0.72, `bold ${fontPx}px monospace`,
+      `rgb(${Math.round(color.r*255)},${Math.round(color.g*255)},${Math.round(color.b*255)})`,
+      'transparent', true);
+
+    // Plane keeps the texture's aspect ratio so text reads correctly
+    const planeH = 0.26 * scaleMult;
+    const planeW = planeH * (texW / texH);
+    const plane = BABYLON.MeshBuilder.CreatePlane(`lbl_${Math.random()}`, {
+      width: planeW, height: planeH,
     }, this.scene);
     plane.position.copyFrom(position);
     plane.billboardMode = BABYLON.Mesh.BILLBOARDMODE_ALL;
     plane.setParent(this.parent);
 
-    const dt  = new BABYLON.DynamicTexture(`dt_${text}`, { width: 256, height: 64 }, this.scene);
-    dt.drawText(text, null, 48, `bold ${Math.round(32 * scaleMult)}px monospace`,
-      `rgb(${Math.round(color.r*255)},${Math.round(color.g*255)},${Math.round(color.b*255)})`,
-      'transparent', true);
-
-    const mat = new BABYLON.StandardMaterial(`lblMat_${text}`, this.scene);
+    const mat = new BABYLON.StandardMaterial(`lblMat_${Math.random()}`, this.scene);
     mat.diffuseTexture  = dt;
     mat.emissiveTexture = dt;
     mat.opacityTexture  = dt;

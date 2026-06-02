@@ -120,7 +120,7 @@
     #menu-overlay.open { display: block; }
 
     #menu-panel {
-      position: fixed; top: 0; left: 0; height: 100dvh;
+      position: fixed; top: 54px; left: 0; height: calc(100dvh - 54px);
       width: min(280px,88vw);
       background: rgba(8,8,18,0.97);
       border-right: 1px solid rgba(255,255,255,0.12);
@@ -351,13 +351,6 @@
 
         <label>Popularity <span class="slider-val" id="pop-v">0 – 100</span></label>
         <div id="pop-range"></div>
-
-        <label>Mode</label>
-        <div class="seg" id="seg-mode">
-          <button data-val="all" class="active">All</button>
-          <button data-val="major">Major</button>
-          <button data-val="minor">Minor</button>
-        </div>
 
         <label>Vocals</label>
         <div class="seg" id="seg-vocal">
