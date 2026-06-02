@@ -2,6 +2,7 @@ import { filterState } from '../data/FilterState.js';
 import { AXIS_OPTIONS, denormalizeLabel } from '../utils/DataUtils.js';
 import { colorForGenre } from '../utils/ColorMapper.js';
 import { addRecent, getRecent } from '../utils/RecentlyViewed.js';
+import { DualRange } from './DualRange.js';
 
 export class MenuPanel {
   constructor(scatterPlot) {
@@ -13,13 +14,14 @@ export class MenuPanel {
     this._renderRecent();
   }
 
-  // ── Axis selects + coupled range filters ──────────────────
+  // ── Axis selects + coupled dual-range filters ─────────────
   _buildAxisSelects() {
     const dims = [
       { sel: 'axis-x', dim: 0, field: 'axisX', range: 'rangeX' },
       { sel: 'axis-y', dim: 1, field: 'axisY', range: 'rangeY' },
       { sel: 'axis-z', dim: 2, field: 'axisZ', range: 'rangeZ' },
     ];
+    this._ranges = {};
 
     for (const d of dims) {
       const el = document.getElementById(d.sel);
@@ -29,25 +31,23 @@ export class MenuPanel {
         if (opt.value === filterState[d.field]) o.selected = true;
         el.appendChild(o);
       }
+
+      // Dual-thumb slider in normalized 0..100 space
+      const slider = new DualRange(document.getElementById(d.range), {
+        min: 0, max: 100, step: 1, valueMin: 0, valueMax: 100,
+        onChange: (lo, hi) => {
+          filterState.setRange(d.dim, lo / 100, hi / 100);
+          this._updateRangeLabel(d);
+        },
+      });
+      this._ranges[d.dim] = slider;
+
       el.addEventListener('change', () => {
         filterState.setAxis(d.dim, el.value);
-        // reset sliders to full
-        document.getElementById(`${d.range}-min`).value = 0;
-        document.getElementById(`${d.range}-max`).value = 100;
+        slider.set(0, 100);              // reset range on axis change
         this._updateRangeLabel(d);
       });
 
-      // Coupled range sliders (normalized 0..1 via 0..100)
-      const minEl = document.getElementById(`${d.range}-min`);
-      const maxEl = document.getElementById(`${d.range}-max`);
-      const onRange = () => {
-        let lo = parseInt(minEl.value), hi = parseInt(maxEl.value);
-        if (lo > hi) { [lo, hi] = [hi, lo]; }
-        filterState.setRange(d.dim, lo / 100, hi / 100);
-        this._updateRangeLabel(d);
-      };
-      minEl.addEventListener('input', onRange);
-      maxEl.addEventListener('input', onRange);
       this._updateRangeLabel(d);
     }
   }
@@ -74,17 +74,14 @@ export class MenuPanel {
   // ── Base filters ──────────────────────────────────────────
   _bindFilters() {
     // Popularity dual-range
-    const pMin = document.getElementById('pop-min');
-    const pMax = document.getElementById('pop-max');
     const pLbl = document.getElementById('pop-v');
-    const onPop = () => {
-      let lo = parseInt(pMin.value), hi = parseInt(pMax.value);
-      if (lo > hi) { [lo, hi] = [hi, lo]; }
-      if (pLbl) pLbl.textContent = `${lo} – ${hi}`;
-      filterState.set({ minPopularity: lo, maxPopularity: hi });
-    };
-    pMin?.addEventListener('input', onPop);
-    pMax?.addEventListener('input', onPop);
+    new DualRange(document.getElementById('pop-range'), {
+      min: 0, max: 100, step: 1, valueMin: 0, valueMax: 100,
+      onChange: (lo, hi) => {
+        if (pLbl) pLbl.textContent = `${lo} – ${hi}`;
+        filterState.set({ minPopularity: lo, maxPopularity: hi });
+      },
+    });
 
     // Mode segmented control
     this._bindSegmented('seg-mode', val => filterState.set({ mode: val }));

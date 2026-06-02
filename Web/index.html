@@ -170,9 +170,46 @@
       border: 1px solid #2a2a3e; border-radius: 5px;
       padding: 0.3rem 0.5rem; font-size: 0.8rem;
     }
-    .slider-row { display: flex; align-items: center; gap: 0.4rem; }
-    .slider-row input[type=range] { flex: 1; accent-color: #1db954; }
-    .slider-val { min-width: 2.8rem; text-align: right; color: #1db954; font-size: 0.76rem; font-variant-numeric: tabular-nums; }
+    .slider-val { color: #1db954; font-size: 0.76rem; font-variant-numeric: tabular-nums; }
+
+    /* Dual-thumb range slider */
+    .dual-range {
+      position: relative;
+      height: 30px;
+      margin: 0.15rem 0 0.35rem;
+    }
+    .dr-rail {
+      position: absolute; top: 50%; left: 0; right: 0;
+      height: 4px; transform: translateY(-50%);
+      background: #2a2a3e; border-radius: 2px;
+    }
+    .dr-fill {
+      position: absolute; top: 50%; height: 4px;
+      transform: translateY(-50%);
+      background: #1db954; border-radius: 2px;
+      pointer-events: none;
+    }
+    .dr-input {
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 30px;
+      margin: 0; background: none;
+      pointer-events: none;
+      -webkit-appearance: none; appearance: none;
+    }
+    .dr-input::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: #fff; border: 2px solid #1db954;
+      cursor: pointer; pointer-events: all;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.5);
+    }
+    .dr-input::-moz-range-thumb {
+      width: 18px; height: 18px; border-radius: 50%;
+      background: #fff; border: 2px solid #1db954;
+      cursor: pointer; pointer-events: all;
+    }
+    .dr-input::-webkit-slider-runnable-track { background: none; }
+    .dr-input::-moz-range-track { background: none; }
     .toggle-row { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.45rem; }
     .toggle-row input { accent-color: #1db954; }
 
@@ -293,17 +330,17 @@
       <!-- Axes (each with a coupled range filter) -->
       <div class="section-head" data-section="axes">Axes &amp; Range <span class="arr">▾</span></div>
       <div class="section-body" id="sec-axes">
-        <label>X Axis</label>
+        <label>X Axis <span class="slider-val" id="rangeX-v">all</span></label>
         <select id="axis-x"></select>
-        <div class="slider-row"><input type="range" id="rangeX-min" min="0" max="100" value="0"/><input type="range" id="rangeX-max" min="0" max="100" value="100"/><span class="slider-val" id="rangeX-v">all</span></div>
+        <div id="rangeX"></div>
 
-        <label>Y Axis</label>
+        <label>Y Axis <span class="slider-val" id="rangeY-v">all</span></label>
         <select id="axis-y"></select>
-        <div class="slider-row"><input type="range" id="rangeY-min" min="0" max="100" value="0"/><input type="range" id="rangeY-max" min="0" max="100" value="100"/><span class="slider-val" id="rangeY-v">all</span></div>
+        <div id="rangeY"></div>
 
-        <label>Z Axis</label>
+        <label>Z Axis <span class="slider-val" id="rangeZ-v">all</span></label>
         <select id="axis-z"></select>
-        <div class="slider-row"><input type="range" id="rangeZ-min" min="0" max="100" value="0"/><input type="range" id="rangeZ-max" min="0" max="100" value="100"/><span class="slider-val" id="rangeZ-v">all</span></div>
+        <div id="rangeZ"></div>
       </div>
 
       <!-- Filters -->
@@ -313,7 +350,7 @@
         <select id="filter-genre"><option value="">All Genres</option></select>
 
         <label>Popularity <span class="slider-val" id="pop-v">0 – 100</span></label>
-        <div class="slider-row"><input type="range" id="pop-min" min="0" max="100" value="0"/><input type="range" id="pop-max" min="0" max="100" value="100"/></div>
+        <div id="pop-range"></div>
 
         <label>Mode</label>
         <div class="seg" id="seg-mode">

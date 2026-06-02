@@ -41,19 +41,31 @@ export class ScatterPlot {
     this.rebuild();
   }
 
-  /** Returns up to `limit` rendered tracks whose name starts with the query. */
+  /**
+   * Search rendered tracks by track name OR artist.
+   * Prefix matches rank first, then substring matches. Returns up to `limit`.
+   */
   findTracks(query, limit = 8) {
     if (!query) return [];
     const q = query.toLowerCase();
-    const results = [];
+    const prefix = [];
+    const contains = [];
+
     for (const mesh of this.spheres) {
-      const name = mesh.metadata?.track?.track_name?.toLowerCase() ?? '';
-      if (name.startsWith(q)) {
-        results.push(mesh.metadata.track);
-        if (results.length >= limit) break;
+      const t = mesh.metadata?.track;
+      if (!t) continue;
+      const name   = (t.track_name || '').toLowerCase();
+      const artist = (t.artists || '').toLowerCase();
+
+      if (name.startsWith(q) || artist.startsWith(q)) {
+        prefix.push(t);
+      } else if (name.includes(q) || artist.includes(q)) {
+        contains.push(t);
       }
+      if (prefix.length >= limit) break;
     }
-    return results;
+
+    return [...prefix, ...contains].slice(0, limit);
   }
 
   /** Highlight a track sphere by track_id. Returns true if found in current render. */
