@@ -1,67 +1,60 @@
 # InfoVisDataVisualizer
 
-3D Information Visualization of the Spotify Tracks Dataset (~114k tracks).  
-Supports **Web 3D**, **AR** (phone camera, table projection via plane detection), and **VR** (any OpenXR headset with controllers).
+3D Information Visualization of the Spotify Tracks Dataset (~114k tracks).
+Built with **Babylon.js + WebXR** — runs as **Web 3D**, **AR** (phone camera, table projection via plane detection), and **VR** (any WebXR headset with controllers).
 
 ## Dataset
-[Spotify Tracks Dataset – Kaggle](https://www.kaggle.com/datasets/maharshipandya/-spotify-tracks-dataset)  
-CSV placed at `Web/public/dataset.csv` and `Unity/Assets/StreamingAssets/dataset.csv`.
+[Spotify Tracks Dataset – Kaggle](https://www.kaggle.com/datasets/maharshipandya/-spotify-tracks-dataset)
+Cleaned CSV at `Web/public/dataset.csv` (see `tools/clean_dataset.py`).
 
 ## Platforms
 
-| Feature | Web (Babylon.js) | Unity |
-|---|---|---|
-| Desktop 3D | ✅ | ✅ |
-| AR (phone, table) | ✅ WebXR immersive-ar | ✅ AR Foundation |
-| VR (any headset) | ✅ WebXR immersive-vr | ✅ OpenXR |
-| VR Wrist Menu | ✅ Controller palm-up | ✅ Controller palm-up |
+| Feature | Status |
+|---|---|
+| Desktop 3D | ✅ |
+| AR (phone, table) | ✅ WebXR immersive-ar + plane detection |
+| VR (Rift / any WebXR headset) | ✅ WebXR immersive-vr |
+| VR Wrist Menu | ✅ Y-button toggle, right-hand ray interaction |
 
 ## Visualization Features
 - **3 axes** (default: Danceability / Energy / Valence) — changeable via menu
 - **Sphere size** = Popularity
-- **Sphere color** = Genre (color-coded legend)
-- **Selection**: clicking/triggering a sphere projects vertical + floor crosshair lines so the user can read off X/Z values and a horizontal marker for Y
-- **Filters**: Genre, Popularity range, Energy range, Danceability range, Valence range, Tempo range, Track count, Explicit toggle
+- **Sphere color** = Genre (color-coded)
+- **Selection**: a sphere projects a vertical drop line + floor crosshair so you can read off X/Z values, plus a Y marker
+- **Search** track names + **Recently Viewed** list (localStorage)
+- **Axis-coupled range filters** (X/Y/Z always match the active axes) + Genre, Popularity, Mode (major/minor), Vocals (instrumental/vocal), Explicit, Track count
 
 ## Controls
 
-### Desktop (Web)
-- Orbit: Left mouse drag
-- Pan: Right mouse drag / Middle mouse
-- Zoom: Scroll wheel
-- Select sphere: Left click
+### Desktop
+- Orbit: left-mouse drag · Pan: right-mouse drag · Zoom: scroll · Select: left click
 
-### VR
-- Locomotion: Right thumbstick
-- Select sphere: Right trigger
-- **Wrist Menu**: Turn left controller palm toward your face → menu appears; interact with right controller ray
+### VR (Oculus Rift / WebXR)
+- Locomotion: **left** thumbstick
+- Grab & move the plot: **squeeze** (either controller)
+- Select sphere: **right trigger** (ray)
+- Wrist Menu: **Y-button** (left) toggles it; interact with the **right** controller ray
 
 ### AR
-- Tap detected plane to place visualization
-- Pinch to scale / rotate
+- Point at a surface → reticle appears → **single tap** to place
+- **Triple-tap** to reset and re-place at a new position
 
 ## Structure
 ```
 InfoVisDataVisualizer/
-├── Web/          # Babylon.js + WebXR
-└── Unity/        # Unity 6 + XR Interaction Toolkit 3 + AR Foundation
+├── Web/      # Babylon.js + WebXR app
+├── tools/    # dataset cleaning + docx generator
+└── docs/     # EEG user-test protocol
 ```
 
 ## Quick Start
-
-### Web
 ```bash
 cd Web
 npm install
 npm run dev
-# Open http://localhost:5173
+# Desktop:  http://localhost:5173
+# Phone/VR: expose via HTTPS tunnel (ngrok http 5173) — WebXR requires HTTPS
 ```
 
-### Unity
-1. Open Unity Hub → Add project → select the `Unity/` folder
-2. Unity 6.x (6000.x LTS) recommended
-3. Open `Assets/Scenes/MainScene.unity`
-4. See `Unity/SCENE_SETUP.md` for full scene wiring guide
-
 ## Status
-See [TASKS.md](TASKS.md) for current progress and open TODOs.
+See [TASKS.md](TASKS.md) for progress and open TODOs.
