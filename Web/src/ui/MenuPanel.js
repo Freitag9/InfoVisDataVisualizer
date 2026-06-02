@@ -1,5 +1,5 @@
 import { filterState } from '../data/FilterState.js';
-import { AXIS_OPTIONS } from '../utils/DataUtils.js';
+import { AXIS_OPTIONS, denormalizeLabel } from '../utils/DataUtils.js';
 import { colorForGenre } from '../utils/ColorMapper.js';
 import { addRecent, getRecent } from '../utils/RecentlyViewed.js';
 
@@ -13,22 +13,52 @@ export class MenuPanel {
     this._renderRecent();
   }
 
-  // ── Axis selects ──────────────────────────────────────────
+  // ── Axis selects + coupled range filters ──────────────────
   _buildAxisSelects() {
-    const build = (id, currentVal, field) => {
-      const el = document.getElementById(id);
-      if (!el) return;
+    const dims = [
+      { sel: 'axis-x', dim: 0, field: 'axisX', range: 'rangeX' },
+      { sel: 'axis-y', dim: 1, field: 'axisY', range: 'rangeY' },
+      { sel: 'axis-z', dim: 2, field: 'axisZ', range: 'rangeZ' },
+    ];
+
+    for (const d of dims) {
+      const el = document.getElementById(d.sel);
       for (const opt of AXIS_OPTIONS) {
         const o = document.createElement('option');
         o.value = opt.value; o.textContent = opt.label;
-        if (opt.value === currentVal) o.selected = true;
+        if (opt.value === filterState[d.field]) o.selected = true;
         el.appendChild(o);
       }
-      el.addEventListener('change', () => filterState.set({ [field]: el.value }));
-    };
-    build('axis-x', filterState.axisX, 'axisX');
-    build('axis-y', filterState.axisY, 'axisY');
-    build('axis-z', filterState.axisZ, 'axisZ');
+      el.addEventListener('change', () => {
+        filterState.setAxis(d.dim, el.value);
+        // reset sliders to full
+        document.getElementById(`${d.range}-min`).value = 0;
+        document.getElementById(`${d.range}-max`).value = 100;
+        this._updateRangeLabel(d);
+      });
+
+      // Coupled range sliders (normalized 0..1 via 0..100)
+      const minEl = document.getElementById(`${d.range}-min`);
+      const maxEl = document.getElementById(`${d.range}-max`);
+      const onRange = () => {
+        let lo = parseInt(minEl.value), hi = parseInt(maxEl.value);
+        if (lo > hi) { [lo, hi] = [hi, lo]; }
+        filterState.setRange(d.dim, lo / 100, hi / 100);
+        this._updateRangeLabel(d);
+      };
+      minEl.addEventListener('input', onRange);
+      maxEl.addEventListener('input', onRange);
+      this._updateRangeLabel(d);
+    }
+  }
+
+  _updateRangeLabel(d) {
+    const lbl = document.getElementById(`${d.range}-v`);
+    if (!lbl) return;
+    const r = filterState[d.range];
+    const field = filterState[d.field];
+    if (r.min <= 0.001 && r.max >= 0.999) { lbl.textContent = 'all'; return; }
+    lbl.textContent = `${denormalizeLabel(field, r.min)} – ${denormalizeLabel(field, r.max)}`;
   }
 
   populateGenres(genres) {
@@ -41,38 +71,47 @@ export class MenuPanel {
     sel.addEventListener('change', () => filterState.set({ genre: sel.value }));
   }
 
-  // ── Filters ───────────────────────────────────────────────
+  // ── Base filters ──────────────────────────────────────────
   _bindFilters() {
-    const bindRange = (id, valId, scale, key, dec) => {
-      const el = document.getElementById(id);
-      const lbl= document.getElementById(valId);
-      if (!el) return;
-      el.addEventListener('input', () => {
-        const v = parseFloat(el.value) / scale;
-        if (lbl) lbl.textContent = dec ? v.toFixed(dec) : Math.round(v);
-        filterState.set({ [key]: v });
-      });
+    // Popularity dual-range
+    const pMin = document.getElementById('pop-min');
+    const pMax = document.getElementById('pop-max');
+    const pLbl = document.getElementById('pop-v');
+    const onPop = () => {
+      let lo = parseInt(pMin.value), hi = parseInt(pMax.value);
+      if (lo > hi) { [lo, hi] = [hi, lo]; }
+      if (pLbl) pLbl.textContent = `${lo} – ${hi}`;
+      filterState.set({ minPopularity: lo, maxPopularity: hi });
     };
-    bindRange('pop-min',    'pop-min-v',    1,   'minPopularity',   0);
-    bindRange('pop-max',    'pop-max-v',    1,   'maxPopularity',   0);
-    bindRange('energy-min', 'energy-min-v', 100, 'minEnergy',       2);
-    bindRange('energy-max', 'energy-max-v', 100, 'maxEnergy',       2);
-    bindRange('dance-min',  'dance-min-v',  100, 'minDanceability', 2);
-    bindRange('dance-max',  'dance-max-v',  100, 'maxDanceability', 2);
-    bindRange('valence-min','valence-min-v',100, 'minValence',      2);
-    bindRange('valence-max','valence-max-v',100, 'maxValence',      2);
-    bindRange('tempo-min',  'tempo-min-v',  1,   'minTempo',        0);
-    bindRange('tempo-max',  'tempo-max-v',  1,   'maxTempo',        0);
+    pMin?.addEventListener('input', onPop);
+    pMax?.addEventListener('input', onPop);
+
+    // Mode segmented control
+    this._bindSegmented('seg-mode', val => filterState.set({ mode: val }));
+    // Vocal segmented control
+    this._bindSegmented('seg-vocal', val => filterState.set({ vocal: val }));
 
     const cb = document.getElementById('filter-explicit');
-    if (cb) cb.addEventListener('change', () => filterState.set({ explicitOnly: cb.checked }));
+    cb?.addEventListener('change', () => filterState.set({ explicitOnly: cb.checked }));
 
-    const cnt = document.getElementById('track-count');
-    const cntL= document.getElementById('count-label');
-    if (cnt) cnt.addEventListener('input', () => {
+    const cnt  = document.getElementById('track-count');
+    const cntL = document.getElementById('count-label');
+    cnt?.addEventListener('input', () => {
       const v = parseInt(cnt.value);
       if (cntL) cntL.textContent = v;
-      filterState.set({ trackCount: v });
+      filterState.setTrackCount(v);
+    });
+  }
+
+  _bindSegmented(id, onSelect) {
+    const group = document.getElementById(id);
+    if (!group) return;
+    group.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        group.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        onSelect(btn.dataset.val);
+      });
     });
   }
 

@@ -176,6 +176,18 @@
     .toggle-row { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.45rem; }
     .toggle-row input { accent-color: #1db954; }
 
+    /* Segmented control */
+    .seg { display: flex; gap: 4px; margin-top: 0.15rem; }
+    .seg button {
+      flex: 1; padding: 0.32rem 0.2rem;
+      background: #111122; color: #999;
+      border: 1px solid #2a2a3e; border-radius: 5px;
+      font-size: 0.72rem; cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: background 0.12s, color 0.12s;
+    }
+    .seg button.active { background: #1db954; color: #04210f; border-color: #1db954; font-weight: 600; }
+
     /* Recently viewed */
     .recent-item {
       display: flex; align-items: center; gap: 0.55rem;
@@ -278,12 +290,20 @@
         <div id="recent-list"></div>
       </div>
 
-      <!-- Axes -->
-      <div class="section-head" data-section="axes">Axes <span class="arr">▾</span></div>
+      <!-- Axes (each with a coupled range filter) -->
+      <div class="section-head" data-section="axes">Axes &amp; Range <span class="arr">▾</span></div>
       <div class="section-body" id="sec-axes">
-        <label>X Axis</label><select id="axis-x"></select>
-        <label>Y Axis</label><select id="axis-y"></select>
-        <label>Z Axis</label><select id="axis-z"></select>
+        <label>X Axis</label>
+        <select id="axis-x"></select>
+        <div class="slider-row"><input type="range" id="rangeX-min" min="0" max="100" value="0"/><input type="range" id="rangeX-max" min="0" max="100" value="100"/><span class="slider-val" id="rangeX-v">all</span></div>
+
+        <label>Y Axis</label>
+        <select id="axis-y"></select>
+        <div class="slider-row"><input type="range" id="rangeY-min" min="0" max="100" value="0"/><input type="range" id="rangeY-max" min="0" max="100" value="100"/><span class="slider-val" id="rangeY-v">all</span></div>
+
+        <label>Z Axis</label>
+        <select id="axis-z"></select>
+        <div class="slider-row"><input type="range" id="rangeZ-min" min="0" max="100" value="0"/><input type="range" id="rangeZ-max" min="0" max="100" value="100"/><span class="slider-val" id="rangeZ-v">all</span></div>
       </div>
 
       <!-- Filters -->
@@ -292,25 +312,22 @@
         <label>Genre</label>
         <select id="filter-genre"><option value="">All Genres</option></select>
 
-        <label>Popularity</label>
-        <div class="slider-row"><input type="range" id="pop-min" min="0" max="100" value="0"/><span class="slider-val" id="pop-min-v">0</span></div>
-        <div class="slider-row"><input type="range" id="pop-max" min="0" max="100" value="100"/><span class="slider-val" id="pop-max-v">100</span></div>
+        <label>Popularity <span class="slider-val" id="pop-v">0 – 100</span></label>
+        <div class="slider-row"><input type="range" id="pop-min" min="0" max="100" value="0"/><input type="range" id="pop-max" min="0" max="100" value="100"/></div>
 
-        <label>Energy</label>
-        <div class="slider-row"><input type="range" id="energy-min" min="0" max="100" value="0"/><span class="slider-val" id="energy-min-v">0.00</span></div>
-        <div class="slider-row"><input type="range" id="energy-max" min="0" max="100" value="100"/><span class="slider-val" id="energy-max-v">1.00</span></div>
+        <label>Mode</label>
+        <div class="seg" id="seg-mode">
+          <button data-val="all" class="active">All</button>
+          <button data-val="major">Major</button>
+          <button data-val="minor">Minor</button>
+        </div>
 
-        <label>Danceability</label>
-        <div class="slider-row"><input type="range" id="dance-min" min="0" max="100" value="0"/><span class="slider-val" id="dance-min-v">0.00</span></div>
-        <div class="slider-row"><input type="range" id="dance-max" min="0" max="100" value="100"/><span class="slider-val" id="dance-max-v">1.00</span></div>
-
-        <label>Valence</label>
-        <div class="slider-row"><input type="range" id="valence-min" min="0" max="100" value="0"/><span class="slider-val" id="valence-min-v">0.00</span></div>
-        <div class="slider-row"><input type="range" id="valence-max" min="0" max="100" value="100"/><span class="slider-val" id="valence-max-v">1.00</span></div>
-
-        <label>Tempo (BPM)</label>
-        <div class="slider-row"><input type="range" id="tempo-min" min="40" max="220" value="40"/><span class="slider-val" id="tempo-min-v">40</span></div>
-        <div class="slider-row"><input type="range" id="tempo-max" min="40" max="220" value="220"/><span class="slider-val" id="tempo-max-v">220</span></div>
+        <label>Vocals</label>
+        <div class="seg" id="seg-vocal">
+          <button data-val="all" class="active">All</button>
+          <button data-val="instrumental">Instrumental</button>
+          <button data-val="vocal">Vocal</button>
+        </div>
 
         <div class="toggle-row">
           <input type="checkbox" id="filter-explicit"/>

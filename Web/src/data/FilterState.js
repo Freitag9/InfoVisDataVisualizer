@@ -1,56 +1,87 @@
+import { normalize } from '../utils/DataUtils.js';
+
 /**
- * Reactive singleton holding all filter + axis settings.
- * Call onChange(cb) to subscribe; the callback receives the updated state.
+ * Reactive singleton holding axis selection + all filters.
+ *
+ * Axis-coupled range filters (rangeX/Y/Z) are stored in NORMALIZED [0,1] space
+ * so they always match whatever field is currently mapped to that axis.
+ * Changing an axis resets its range to full [0,1].
+ *
+ * Listeners receive a `type` hint: 'axis' | 'count' | 'filter'
+ * so the renderer can avoid unnecessary re-sampling.
  */
 class FilterState {
   constructor() {
-    this.axisX          = 'danceability';
-    this.axisY          = 'energy';
-    this.axisZ          = 'valence';
-    this.genre          = '';
-    this.minPopularity  = 0;
-    this.maxPopularity  = 100;
-    this.minEnergy      = 0;
-    this.maxEnergy      = 1;
-    this.minDanceability= 0;
-    this.maxDanceability= 1;
-    this.minValence     = 0;
-    this.maxValence     = 1;
-    this.minTempo       = 40;
-    this.maxTempo       = 220;
-    this.explicitOnly   = false;
+    this.axisX = 'danceability';
+    this.axisY = 'energy';
+    this.axisZ = 'valence';
+
+    // Axis-coupled range filters (normalized 0..1)
+    this.rangeX = { min: 0, max: 1 };
+    this.rangeY = { min: 0, max: 1 };
+    this.rangeZ = { min: 0, max: 1 };
+
+    // Base filters (axis-independent)
+    this.genre         = '';
+    this.minPopularity = 0;
+    this.maxPopularity = 100;
+    this.explicitOnly  = false;
+    this.mode          = 'all';   // 'all' | 'major' | 'minor'
+    this.vocal         = 'all';   // 'all' | 'instrumental' | 'vocal'
+
     this.trackCount     = 500;
-    this.availableGenres= [];
-    this._listeners     = new Set();
+    this.availableGenres = [];
+    this._listeners      = new Set();
   }
 
-  onChange(cb) {
-    this._listeners.add(cb);
-    return () => this._listeners.delete(cb);
-  }
+  onChange(cb)  { this._listeners.add(cb); return () => this._listeners.delete(cb); }
+  _emit(type)   { for (const cb of this._listeners) cb(this, type); }
 
-  _emit() {
-    for (const cb of this._listeners) cb(this);
-  }
-
-  set(patch) {
+  /** Generic setter for base filters. */
+  set(patch, type = 'filter') {
     Object.assign(this, patch);
-    this._emit();
+    this._emit(type);
   }
 
+  /** Change an axis field and reset that axis's range filter to full. */
+  setAxis(dim, field) {
+    if (dim === 0) { this.axisX = field; this.rangeX = { min: 0, max: 1 }; }
+    if (dim === 1) { this.axisY = field; this.rangeY = { min: 0, max: 1 }; }
+    if (dim === 2) { this.axisZ = field; this.rangeZ = { min: 0, max: 1 }; }
+    this._emit('axis');
+  }
+
+  /** Update an axis-coupled range filter (values in normalized 0..1). */
+  setRange(dim, min, max) {
+    const r = { min, max };
+    if (dim === 0) this.rangeX = r;
+    if (dim === 1) this.rangeY = r;
+    if (dim === 2) this.rangeZ = r;
+    this._emit('filter');
+  }
+
+  setTrackCount(v) { this.trackCount = v; this._emit('count'); }
+
+  /** Does a track pass all active filters? */
   passes(track) {
-    if (this.genre && track.track_genre !== this.genre)          return false;
-    if (track.popularity < this.minPopularity)                    return false;
-    if (track.popularity > this.maxPopularity)                    return false;
-    if (track.energy < this.minEnergy)                            return false;
-    if (track.energy > this.maxEnergy)                            return false;
-    if (track.danceability < this.minDanceability)                return false;
-    if (track.danceability > this.maxDanceability)                return false;
-    if (track.valence < this.minValence)                          return false;
-    if (track.valence > this.maxValence)                          return false;
-    if (track.tempo < this.minTempo)                              return false;
-    if (track.tempo > this.maxTempo)                              return false;
-    if (this.explicitOnly && !track.explicit)                     return false;
+    // Base filters
+    if (this.genre && track.track_genre !== this.genre) return false;
+    if (track.popularity < this.minPopularity) return false;
+    if (track.popularity > this.maxPopularity) return false;
+    if (this.explicitOnly && !track.explicit) return false;
+    if (this.mode === 'major' && track.mode !== 1) return false;
+    if (this.mode === 'minor' && track.mode !== 0) return false;
+    if (this.vocal === 'instrumental' && track.instrumentalness < 0.5) return false;
+    if (this.vocal === 'vocal' && track.instrumentalness >= 0.5) return false;
+
+    // Axis-coupled range filters (normalized)
+    const nx = normalize(track, this.axisX);
+    if (nx < this.rangeX.min || nx > this.rangeX.max) return false;
+    const ny = normalize(track, this.axisY);
+    if (ny < this.rangeY.min || ny > this.rangeY.max) return false;
+    const nz = normalize(track, this.axisZ);
+    if (nz < this.rangeZ.min || nz > this.rangeZ.max) return false;
+
     return true;
   }
 }

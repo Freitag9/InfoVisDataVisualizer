@@ -43,15 +43,15 @@ export class VRMenuPanel {
     this._addAxisPicker(root, 'Z Axis', 'axisZ', 2);
     this._addSectionLabel(root, 'FILTERS');
     this._addSliderRow(root, 'Min Popularity', 0, 100, filterState.minPopularity,
-      v => filterState.set({ minPopularity: v }));
+      v => filterState.set({ minPopularity: Math.round(v) }));
     this._addSliderRow(root, 'Max Popularity', 0, 100, filterState.maxPopularity,
-      v => filterState.set({ maxPopularity: v }));
-    this._addSliderRow(root, 'Min Energy', 0, 100, filterState.minEnergy * 100,
-      v => filterState.set({ minEnergy: v / 100 }));
-    this._addSliderRow(root, 'Max Energy', 0, 100, filterState.maxEnergy * 100,
-      v => filterState.set({ maxEnergy: v / 100 }));
+      v => filterState.set({ maxPopularity: Math.round(v) }));
+    this._addSliderRow(root, 'X Range Min %', 0, 100, filterState.rangeX.min * 100,
+      v => filterState.setRange(0, v / 100, filterState.rangeX.max));
+    this._addSliderRow(root, 'X Range Max %', 0, 100, filterState.rangeX.max * 100,
+      v => filterState.setRange(0, filterState.rangeX.min, v / 100));
     this._addSliderRow(root, 'Track Count', 50, 2000, filterState.trackCount,
-      v => filterState.set({ trackCount: Math.round(v) }));
+      v => filterState.setTrackCount(Math.round(v)));
   }
 
   _addHeader(root, text) {
@@ -108,12 +108,12 @@ export class VRMenuPanel {
     btnPrev.onPointerClickObservable.add(() => {
       idx = (idx - 1 + options.length) % options.length;
       valLbl.text = AXIS_OPTIONS[idx].label;
-      filterState.set({ [field]: options[idx] });
+      filterState.setAxis(_dim, options[idx]);
     });
     btnNext.onPointerClickObservable.add(() => {
       idx = (idx + 1) % options.length;
       valLbl.text = AXIS_OPTIONS[idx].label;
-      filterState.set({ [field]: options[idx] });
+      filterState.setAxis(_dim, options[idx]);
     });
 
     row.addControl(lbl);

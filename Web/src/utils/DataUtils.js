@@ -32,6 +32,19 @@ export function displayValue(track, field) {
   }
 }
 
+/** Map a normalized [0,1] value back to the field's real-world value, formatted. */
+export function denormalizeLabel(field, norm) {
+  const meta = AXIS_OPTIONS.find(o => o.value === field) ?? { min: 0, max: 1 };
+  const real = meta.min + norm * (meta.max - meta.min);
+  switch (field) {
+    case 'popularity': return `${Math.round(real)}`;
+    case 'tempo':      return `${Math.round(real)}`;
+    case 'loudness':   return `${real.toFixed(0)}`;
+    case 'duration_min': return `${real.toFixed(1)}m`;
+    default:           return real.toFixed(2);
+  }
+}
+
 export function formatDuration(ms) {
   const m = Math.floor(ms / 60000);
   const s = Math.floor((ms % 60000) / 1000);

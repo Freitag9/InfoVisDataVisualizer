@@ -25,11 +25,19 @@ export class ScatterPlot {
     this._template.isVisible = false;
     this._template.setParent(this.root);
 
-    filterState.onChange(() => this.rebuild());
+    // Stable shuffled order — created once, never reshuffled on filter/axis change
+    this._shuffledTracks = [];
+
+    filterState.onChange((fs, type) => {
+      if (type === 'axis')  { this.reposition(); }     // no resample, just move spheres
+      else                  { this.rebuild(); }        // 'filter' | 'count' → deterministic rebuild
+    });
   }
 
   setTracks(tracks) {
     this.allTracks = tracks;
+    // Shuffle ONCE so sampling is stable across filter/axis changes
+    this._shuffledTracks = shuffle([...tracks]);
     this.rebuild();
   }
 
@@ -70,12 +78,33 @@ export class ScatterPlot {
     this._clearSpheres();
     const fs = filterState;
 
-    let filtered = this.allTracks.filter(t => fs.passes(t));
-    shuffle(filtered);
-    if (filtered.length > fs.trackCount) filtered.length = fs.trackCount;
+    // Deterministic: filter in the fixed shuffled order, take first N
+    const filtered = [];
+    for (const track of this._shuffledTracks) {
+      if (fs.passes(track)) {
+        filtered.push(track);
+        if (filtered.length >= fs.trackCount) break;
+      }
+    }
 
     for (const track of filtered) this._spawnSphere(track);
 
+    this._axisRenderer.update(fs.axisX, fs.axisY, fs.axisZ);
+    this._projectionRay.hide();
+    this.selected = null;
+  }
+
+  /** Axis change: keep the same spheres, just move them to new coordinates. */
+  reposition() {
+    const fs = filterState;
+    for (const mesh of this.spheres) {
+      const t = mesh.metadata.track;
+      mesh.position.set(
+        normalize(t, fs.axisX) * PLOT_SIZE,
+        normalize(t, fs.axisY) * PLOT_SIZE,
+        normalize(t, fs.axisZ) * PLOT_SIZE,
+      );
+    }
     this._axisRenderer.update(fs.axisX, fs.axisY, fs.axisZ);
     this._projectionRay.hide();
     this.selected = null;
