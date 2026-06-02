@@ -29,8 +29,9 @@ export class ScatterPlot {
     this._shuffledTracks = [];
 
     filterState.onChange((fs, type) => {
-      if (type === 'axis')  { this.reposition(); }     // no resample, just move spheres
-      else                  { this.rebuild(); }        // 'filter' | 'count' → deterministic rebuild
+      if (type === 'axis')       { this.reposition(); }                 // just move existing spheres
+      else if (type === 'count') { shuffle(this._shuffledTracks); this.rebuild(); } // reshuffle which tracks show
+      else                       { this.rebuild(); }                    // 'filter' → deterministic, stable order
     });
   }
 
