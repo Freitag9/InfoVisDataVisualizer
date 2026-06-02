@@ -1,6 +1,6 @@
 import { filterState } from '../data/FilterState.js';
 import { AXIS_OPTIONS, denormalizeLabel } from '../utils/DataUtils.js';
-import { colorForGenre } from '../utils/ColorMapper.js';
+import { colorForGenre, familyForGenre, getLegend } from '../utils/ColorMapper.js';
 import { addRecent, getRecent } from '../utils/RecentlyViewed.js';
 import { DualRange } from './DualRange.js';
 import { FEATURE_INFO, ENCODING_INFO } from '../utils/FeatureInfo.js';
@@ -14,6 +14,19 @@ export class MenuPanel {
     this._initSearch();
     this._renderRecent();
     this._initGlossary();
+    this._renderLegend();
+  }
+
+  // ── Genre family legend ───────────────────────────────────
+  _renderLegend() {
+    const el = document.getElementById('legend-list');
+    if (!el) return;
+    el.innerHTML = getLegend().map(({ family, color }) =>
+      `<div class="legend-item">
+        <span class="legend-swatch" style="background:${color}"></span>
+        <span class="legend-name">${family}</span>
+      </div>`
+    ).join('');
   }
 
   // ── Glossary overlay (feature descriptions) ───────────────
@@ -253,7 +266,7 @@ export class MenuPanel {
 
     const chip = document.getElementById('info-genre');
     const col  = colorForGenre(track.track_genre);
-    chip.textContent      = track.track_genre;
+    chip.textContent      = `${track.track_genre} · ${familyForGenre(track.track_genre)}`;
     chip.style.background = col + '33';
     chip.style.color      = col;
     chip.style.border     = `1px solid ${col}`;

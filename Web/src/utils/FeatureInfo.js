@@ -41,8 +41,8 @@ export const FEATURE_INFO = [
 
 /** Concept descriptions for the non-axis filters / encodings. */
 export const ENCODING_INFO = [
-  { label: 'Kugelfarbe = Genre',
-    desc: 'Das Genre, dem der Track zugeordnet ist (track_genre). Jedes der ~114 Genres erhält eine eigene Farbe.' },
+  { label: 'Kugelfarbe = Genre-Familie',
+    desc: 'Die 114 Genres sind in 14 Familien gruppiert (Rock, Metal, Electronic, Pop, …), jede mit eigener Farbe. Siehe Genre-Legende im Menü. Der Genre-Filter erlaubt weiterhin die Auswahl jedes einzelnen Genres.' },
   { label: 'Kugelgröße = Popularity',
     desc: 'Größere Kugeln stehen für populärere Tracks.' },
   { label: 'Vocals-Filter',

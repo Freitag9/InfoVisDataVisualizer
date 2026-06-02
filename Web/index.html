@@ -281,6 +281,12 @@
     .ri-pop    { font-size: 0.7rem; color: #1db954; flex-shrink: 0; font-variant-numeric: tabular-nums; }
     .recent-empty { color: #444; font-size: 0.78rem; padding: 0.3rem 0; }
 
+    /* Genre legend */
+    #legend-list { display: flex; flex-direction: column; gap: 0.32rem; padding: 0.2rem 0; }
+    .legend-item { display: flex; align-items: center; gap: 0.5rem; }
+    .legend-swatch { width: 13px; height: 13px; border-radius: 3px; flex-shrink: 0; }
+    .legend-name { font-size: 0.8rem; color: #ccc; }
+
     /* ── XR Buttons ──────────────────────────── */
     #xr-buttons {
       position: fixed; bottom: 1rem; right: 1rem;
@@ -406,6 +412,12 @@
           <input type="checkbox" id="filter-explicit"/>
           <label style="margin:0">Explicit only</label>
         </div>
+      </div>
+
+      <!-- Genre legend -->
+      <div class="section-head" data-section="legend">Genre-Legende <span class="arr">▾</span></div>
+      <div class="section-body" id="sec-legend">
+        <div id="legend-list"></div>
       </div>
 
       <!-- Display -->
