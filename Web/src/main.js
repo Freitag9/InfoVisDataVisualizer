@@ -43,7 +43,7 @@ const loadingText   = document.getElementById('loading-text');
   try {
     loadingText.textContent = 'Parsing 114k tracks…';
 
-    const tracks = await loadDataset('/dataset.csv', (count) => {
+    const tracks = await loadDataset(import.meta.env.BASE_URL + 'dataset.csv', (count) => {
       const pct = Math.min(95, (count / 114000) * 100);
       loadingBar.style.width = `${pct}%`;
       loadingText.textContent = `Loaded ${count.toLocaleString()} tracks…`;

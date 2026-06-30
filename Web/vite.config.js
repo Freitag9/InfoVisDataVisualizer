@@ -1,6 +1,9 @@
 import { defineConfig } from 'vite';
 
-export default defineConfig({
+// On GitHub Pages the site is served from /InfoVisDataVisualizer/.
+// Locally (dev) we keep the root base so http://localhost:5173/ works.
+export default defineConfig(({ command }) => ({
+  base: command === 'build' ? '/InfoVisDataVisualizer/' : '/',
   server: {
     // https: true, // Only enable for WebXR testing on real devices (requires mkcert)
     host: true,
@@ -12,4 +15,4 @@ export default defineConfig({
   build: {
     target: 'esnext',
   },
-});
+}));
