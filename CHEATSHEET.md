@@ -1,5 +1,13 @@
 # Cheatsheet — InfoVisDataVisualizer starten
 
+## 🌍 Live (immer erreichbar, von überall, inkl. AR/VR)
+**https://freitag9.github.io/InfoVisDataVisualizer/**
+Wird bei jedem `git push` auf `master` automatisch neu deployt (GitHub Actions, ~1 Min).
+Kein PC / kein ngrok nötig. Für lokale Entwicklung siehe unten.
+
+---
+
+
 Alle Befehle in **PowerShell** ausführen. Projektordner:
 `D:\Calude Working Folder\InfoVis\InfoVisDataVisualizer`
 
