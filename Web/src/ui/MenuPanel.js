@@ -60,14 +60,15 @@ export class MenuPanel {
 
   // ── Axis selects + coupled dual-range filters ─────────────
   _buildAxisSelects() {
-    const dims = [
+    this._dims = [
       { sel: 'axis-x', dim: 0, field: 'axisX', range: 'rangeX' },
       { sel: 'axis-y', dim: 1, field: 'axisY', range: 'rangeY' },
       { sel: 'axis-z', dim: 2, field: 'axisZ', range: 'rangeZ' },
     ];
-    this._ranges = {};
+    this._ranges  = {};
+    this._axisEls = {};
 
-    for (const d of dims) {
+    for (const d of this._dims) {
       const el = document.getElementById(d.sel);
       for (const opt of AXIS_OPTIONS) {
         const o = document.createElement('option');
@@ -75,8 +76,8 @@ export class MenuPanel {
         if (opt.value === filterState[d.field]) o.selected = true;
         el.appendChild(o);
       }
+      this._axisEls[d.dim] = el;
 
-      // Dual-thumb slider in normalized 0..100 space
       const slider = new DualRange(document.getElementById(d.range), {
         min: 0, max: 100, step: 1, valueMin: 0, valueMax: 100,
         onChange: (lo, hi) => {
@@ -86,14 +87,32 @@ export class MenuPanel {
       });
       this._ranges[d.dim] = slider;
 
-      el.addEventListener('change', () => {
-        filterState.setAxis(d.dim, el.value);
-        slider.set(0, 100);              // reset range on axis change
-        this._updateRangeLabel(d);
-      });
-
+      el.addEventListener('change', () => this._onAxisChange(d, el.value));
       this._updateRangeLabel(d);
     }
+  }
+
+  /**
+   * Change an axis. If the picked feature is already on another axis,
+   * swap the two so no feature is ever shown on two axes at once.
+   */
+  _onAxisChange(d, newVal) {
+    const oldVal = filterState[d.field];
+
+    for (const other of this._dims) {
+      if (other.dim === d.dim) continue;
+      if (filterState[other.field] === newVal) {
+        // swap: the other axis takes this axis's previous feature
+        this._axisEls[other.dim].value = oldVal;
+        filterState.setAxis(other.dim, oldVal);
+        this._ranges[other.dim].set(0, 100);
+        this._updateRangeLabel(other);
+      }
+    }
+
+    filterState.setAxis(d.dim, newVal);
+    this._ranges[d.dim].set(0, 100);
+    this._updateRangeLabel(d);
   }
 
   _updateRangeLabel(d) {
