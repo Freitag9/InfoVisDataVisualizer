@@ -1,11 +1,11 @@
 # InfoVisDataVisualizer
 
-Interaktive **3D-Informationsvisualisierung** des Spotify-Tracks-Datensatzes als Scatter-Plot im Raum — lauffähig im **Web (Desktop)**, in **AR** (Handykamera, Projektion auf den Tisch) und in **VR** (WebXR-Headset, z. B. Oculus Rift). Gebaut mit **Babylon.js + WebXR**.
+Interaktive **3D-Informationsvisualisierung** des Spotify-Tracks-Datensatzes als Scatter-Plot im Raum — lauffähig im **Web (Desktop)**, in **AR** (Handykamera, Projektion auf den Tisch) und in **VR** (WebXR-Headset, z. B. Oculus Rift).
 
-## 🌍 Live-Version
+## Live-Version
 **https://freitag9.github.io/InfoVisDataVisualizer/**
 
-Läuft direkt im Browser (Desktop, Handy, VR-Headset). Über HTTPS ausgeliefert → AR/VR funktionieren ohne weitere Einrichtung. Automatisches Deployment über GitHub Pages bei jedem Push (`.github/workflows/deploy.yml`).
+Läuft direkt im Browser (Desktop, Handy, VR-Headset). Über HTTPS ausgeliefert → AR/VR funktionieren ohne weitere Einrichtung. Automatisches Deployment über GitHub Pages.
 
 ---
 
@@ -25,7 +25,6 @@ Spotify-Audio-Features spannen einen **hochdimensionalen Merkmalsraum** auf. Kla
 - **Drei Merkmale gleichzeitig** räumlich erfahrbar machen und frei gegeneinander austauschen.
 - **Muster & Cluster** zwischen Genres sichtbar machen (z. B. „Metal = hohe Energy/niedrige Valence", „Acoustic/Folk = hohe Acousticness").
 - **Immersion nutzen:** In AR/VR kann man sich *in* der Punktwolke bewegen, was räumliche Strukturen besser begreifbar macht als eine 2D-Projektion.
-- Ein exploratives Werkzeug bauen, das typische InfoVis-Aufgaben unterstützt (Überblick, Vergleich, Filtern, Ausreißer finden, Detailanalyse).
 
 ## 3 · Wie sind die Daten gemappt?
 
@@ -51,9 +50,9 @@ Spotify-Audio-Features spannen einen **hochdimensionalen Merkmalsraum** auf. Kla
 - **Genre** (Dropdown, alle 114), **Popularity** (Doppel-Slider), **Vocals** (All / Instrumental / Vocal), **Explicit** (Toggle).
 - **Track-Anzahl** (50–2000): bei Änderung wird die angezeigte Stichprobe **neu gewürfelt**; Filter- und Achsenänderungen lassen die Auswahl dagegen stabil (kein zufälliges Umspringen).
 
-**Selektion:** Klick/Trigger auf eine Kugel → **Projektionsstrahl** (X/Z-Ablesung auf dem Boden, Y-Marker) + **Detail-Panel** (alle Werte). Ausgewählte Tracks landen in **Recently Viewed** (bleibt via localStorage erhalten).
+**Selektion:** Klick/Trigger auf eine Kugel → **Projektionsstrahl** (X/Z-Ablesung auf dem Boden, Y-Marker) + **Detail-Panel** (alle Werte). Ausgewählte Tracks landen in **Recently Viewed**.
 
-**Legende (ⓘ-Button):** Ein Glossar-Overlay erklärt jedes Feature knapp (nach den offiziellen Spotify-Definitionen) — Tap-basiert, damit es auch auf dem Handy funktioniert.
+**Legende (ⓘ-Button):** Ein Glossar-Overlay erklärt jedes Feature knapp (nach den offiziellen Spotify-Definitionen), damit es auch auf dem Handy funktioniert.
 
 ## 5 · XR (AR & VR)
 
@@ -66,43 +65,19 @@ Spotify-Audio-Features spannen einen **hochdimensionalen Merkmalsraum** auf. Kla
 - **Rechter Trigger** = Kugel per Strahl auswählen.
 - **Y-Taste (links)** blendet ein **Handmenü** ein (Indikator schwebt über dem Controller); Bedienung mit dem rechten Controller-Strahl.
 
-> Web/Handy nutzen für AR/VR HTTPS — die Live-Version erfüllt das bereits. Für lokale XR-Tests siehe [CHEATSHEET.md](CHEATSHEET.md) (ngrok-Tunnel).
 
 ## 6 · EEG-Nutzertest
 
 Zur Evaluierung wurde die Visualisierung in einer **Nutzertest-Session mit EEG** (biosignalsplux, 1000 Hz, Kanäle CH1/CH2 = EEG) getestet, synchronisiert mit einer Bildschirmaufnahme.
 
 - **Testprotokoll (Template):** [`docs/EEG_Testprotokoll_SpotifyViz.docx`](docs/EEG_Testprotokoll_SpotifyViz.docx) — Tasks T1–T7, Erfolgskriterien, Event-Log→EEG-Marker-Mapping, LSL-Beispiel.
-- **Auswertungs-Report (PDF):** [`docs/EEG_Report.pdf`](docs/EEG_Report.pdf)
+- **Auswertungs-Report (PDF):** [`docs/EEG_Output.pdf`](docs/EEG_Output.pdf)
 
 ### Interpretation der Test-Session
 
 *(Session „Gruppe 3 – Spotify", 2026-06-03)*
 
 - **Synchronisation:** Das EEG (`opensignals_…_10-37-13.txt`, Start 10:37:18.68) wurde per Skript (`tools/crop_eeg_to_video.py`) exakt auf den Start der Bildschirmaufnahme (10:38:04.000, per ffprobe verifiziert) zugeschnitten und auf die Videolänge (469,9 s) begrenzt → deckungsgleiche EEG-/Video-Zeitachse für die Desktop-Bedingung.
-- **Abdeckung:** Die **Desktop**-Bedingung ist vollständig mit EEG abgedeckt. Die **AR**-Aufnahme fiel in eine Lücke zwischen zwei EEG-Sessions und hat **kein** zugehöriges EEG — sie ist daher nicht neurophysiologisch auswertbar (dokumentierte Limitation).
-- **Quantitative Ergebnisse:** siehe PDF-Report / `eeg_tests/gen_report.ipynb` — u. a. Frontal-Theta (mentale Last) pro Task und Alpha-Aktivität als Entspannungs-/Aufmerksamkeitsmaß.
+- **Abdeckung:** Die **Desktop**-Bedingung ist vollständig mit EEG abgedeckt. Die **AR**-Aufnahme fiel in eine Lücke zwischen zwei EEG-Sessions und hat **kein** zugehöriges EEG. Sie ist daher nicht neurophysiologisch auswertbar (dokumentierte Limitation).
 
 > **Kurzfazit (aus der Session abzuleiten):** _[hier die zentralen Beobachtungen aus dem Report eintragen — z. B. „erhöhte Frontal-Theta-Power beim Achsen-Umstellen (T2) und beim Mehrfach-Filtern (T3) deutet auf höhere kognitive Last hin; Selektion/Ablesen (T4) wurde als am wenigsten belastend erlebt."]_
-
-## Projektstruktur
-```
-InfoVisDataVisualizer/
-├── Web/       # Babylon.js + WebXR App (Vite)
-│   ├── src/   # data / visualization / ui / xr / utils
-│   └── public/dataset.csv
-├── tools/     # Datensatz-Cleaning, EEG-Crop & -Konvertierung, Report-Generator
-├── docs/      # EEG-Testprotokoll (.docx) + Report (.pdf)
-└── .github/   # Pages-Deploy-Workflow
-```
-
-## Lokale Entwicklung
-```bash
-cd Web
-npm install
-npm run dev        # http://localhost:5173
-```
-Für Handy/AR/VR lokal per HTTPS-Tunnel: siehe [CHEATSHEET.md](CHEATSHEET.md).
-
-## Status
-Fortschritt & offene Punkte: [TASKS.md](TASKS.md) · Architektur: [ARCHITECTURE.md](ARCHITECTURE.md)
