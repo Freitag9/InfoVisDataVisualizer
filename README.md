@@ -80,4 +80,24 @@ Zur Evaluierung wurde die Visualisierung in einer **Nutzertest-Session mit EEG**
 - **Synchronisation:** Das EEG (`opensignals_…_10-37-13.txt`, Start 10:37:18.68) wurde per Skript (`tools/crop_eeg_to_video.py`) exakt auf den Start der Bildschirmaufnahme (10:38:04.000, per ffprobe verifiziert) zugeschnitten und auf die Videolänge (469,9 s) begrenzt → deckungsgleiche EEG-/Video-Zeitachse für die Desktop-Bedingung.
 - **Abdeckung:** Die **Desktop**-Bedingung ist vollständig mit EEG abgedeckt. Die **AR**-Aufnahme fiel in eine Lücke zwischen zwei EEG-Sessions und hat **kein** zugehöriges EEG. Sie ist daher nicht neurophysiologisch auswertbar (dokumentierte Limitation).
 
-> **Kurzfazit (aus der Session abzuleiten):** _[hier die zentralen Beobachtungen aus dem Report eintragen — z. B. „erhöhte Frontal-Theta-Power beim Achsen-Umstellen (T2) und beim Mehrfach-Filtern (T3) deutet auf höhere kognitive Last hin; Selektion/Ablesen (T4) wurde als am wenigsten belastend erlebt."]_
+**Beobachtungen (erste, auswertbare Session-Hälfte):**
+- **Aussagekraft:** Nur die **erste Hälfte** der Aufnahme ist interpretierbar. Danach dominieren zunehmend nicht klar zuzuordnende („sonstige") Wellenanteile — vermutlich nachlassende Signalqualität / Artefakte —, sodass eine neurophysiologische Interpretation der zweiten Hälfte nicht mehr sinnvoll ist.
+- **Lesen & Finden:** Sobald der Proband Informationen **lesen** oder gezielt etwas **finden** will, verschiebt sich das Bild deutlich in den „roten" Bereich der Bandanzeige → sichtbar erhöhte kognitive **Anstrengung**.
+- **T2 – gezieltes Umstellen:** Beim Wechsel/Umstellen konkreter Achsenwerte ist die Anstrengung besonders deutlich, sobald eine bestimmte Einstellung gefordert wird.
+- **Schlussfolgern/Interpretieren:** Auch bei den Schlussfolgerungs-Aufgaben wird der Verlauf klar rot → erhöhte Beanspruchung.
+- Danach überwiegen die „sonstigen" Anteile so stark, dass keine weitere Aussage möglich ist.
+
+**Abgeleitete Verbesserung:** Die beobachteten Anstrengungsspitzen beim Umstellen/Filtern führten zu einer konkreten Fehlerbehebung — es lassen sich nun **nicht mehr zwei gleiche Features auf zwei verschiedenen Achsen** wählen (die Achsen tauschen ihre Werte statt zu duplizieren). Das verhindert eine widersprüchliche, redundante Darstellung und reduziert unnötige Fehlbedienung/Last beim Konfigurieren der Achsen.
+
+## 7 · Verbesserungsideen (aus dem EEG-Test abgeleitet)
+
+*Geplante Ansätze, um die im EEG sichtbaren Anstrengungs-Spitzen gezielt zu reduzieren.*
+
+**Ablesen von Werten erleichtern** (rote Last beim Lesen/Finden):
+- Deutlichere **Achsen-Ticks** und dauerhaft sichtbare **Gitterlinien**, damit Werte schneller eingeordnet werden können.
+- **Hover-Tooltip** direkt an der Kugel, statt den Blick zum seitlichen Detail-Panel wandern zu lassen.
+- **Projektionsstrahl-Labels** größer und kontrastreicher darstellen.
+
+**Achsen-Konfiguration vereinfachen** (rote Last bei T2 / gezieltem Umstellen):
+- **Mood-Presets** („Happy", „Chill", „Energetic") setzen Achsen + Filter mit einem Klick.
+- Achsen-Dropdowns **gruppieren / mit Icons** versehen, um die Auswahl schneller zu machen.
